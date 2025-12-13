@@ -107,8 +107,8 @@ const Header = () => {
               <Button variant="ghost" className="justify-start" onClick={() => setIsMenuOpen(false)}>
                 Entrar
               </Button>
-              <Button variant="hero" onClick={() => setIsMenuOpen(false)}>
-                Cadastrar
+              <Button variant="hero" size="sm" asChild>
+                <Link to="/cadastro">Cadastrar</Link>
               </Button>
             </div>
           </nav>
