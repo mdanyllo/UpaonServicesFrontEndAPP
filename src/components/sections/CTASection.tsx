@@ -1,7 +1,15 @@
 import { ArrowRight, Briefcase, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const CTASection = () => {
+
+  const navigate = useNavigate()
+  
+function handleChoose(path: "/cadastro/cliente" | "/cadastro/prestador") {
+  navigate(path)
+}
+
   return (
     <section className="py-20 bg-gradient-hero relative overflow-hidden">
       {/* Background decorations */}
@@ -28,6 +36,7 @@ const CTASection = () => {
               variant="white" 
               size="lg"
               className="group"
+              onClick={() => handleChoose("/cadastro/cliente")}
             >
               Buscar profissionais
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -50,6 +59,7 @@ const CTASection = () => {
               variant="white" 
               size="lg"
               className="group"
+              onClick={() => handleChoose("/cadastro/prestador")}
             >
               Cadastrar como profissional
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

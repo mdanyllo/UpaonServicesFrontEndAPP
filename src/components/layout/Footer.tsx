@@ -1,6 +1,10 @@
-import { MapPin, Mail, Phone, Instagram, Facebook } from "lucide-react";
+import { MapPin, Mail, Phone, Instagram,} from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 
 const Footer = () => {
+
+  const anoAtual: number = new Date().getFullYear();
+
   return (
     <footer className="bg-foreground text-primary-foreground pt-16 pb-8">
       <div className="container mx-auto px-4">
@@ -9,30 +13,32 @@ const Footer = () => {
           <div className="md:col-span-1">
             <a href="/" className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-hero flex items-center justify-center">
-                <span className="text-primary-foreground font-display font-bold text-lg">U</span>
+                <img className="rounded-lg" src="/logo1.png" alt="" />
               </div>
               <span className="font-display font-bold text-xl">
-                Upaon<span className="text-primary">Services</span>
+                UpaonServices
               </span>
             </a>
             <p className="text-primary-foreground/70 text-sm leading-relaxed mb-6">
               Conectando trabalhadores e clientes em São Luís do Maranhão. 
-              A melhor plataforma de serviços da ilha.
+              A melhor plataforma de serviços da Ilha.
             </p>
             <div className="flex items-center gap-3">
               <a
-                href="#"
+                target="blank"
+                href="https://www.instagram.com/upaonservices/"
                 className="w-10 h-10 bg-primary-foreground/10 hover:bg-primary-foreground/20 rounded-xl flex items-center justify-center transition-colors"
                 aria-label="Instagram"
               >
                 <Instagram className="w-5 h-5" />
               </a>
-              <a
-                href="#"
+               <a
+               target="blank"
+                href="https://w.app/upaonservices"
                 className="w-10 h-10 bg-primary-foreground/10 hover:bg-primary-foreground/20 rounded-xl flex items-center justify-center transition-colors"
-                aria-label="Facebook"
+                aria-label="Instagram"
               >
-                <Facebook className="w-5 h-5" />
+                <FaWhatsapp className="w-5 h-5" />
               </a>
             </div>
           </div>
@@ -47,17 +53,17 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="#" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors text-sm">
+                <a href="#categorias" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors text-sm">
                   Categorias
                 </a>
               </li>
               <li>
-                <a href="#" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors text-sm">
-                  Como Funciona
+                <a href="#como-funciona" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors text-sm">
+                  Como Funciona?
                 </a>
               </li>
               <li>
-                <a href="#" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors text-sm">
+                <a href="/cadastro/prestador" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors text-sm">
                   Seja um Profissional
                 </a>
               </li>
@@ -103,14 +109,14 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-primary flex-shrink-0" />
-                <a href="mailto:contato@upaonservices.com" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors text-sm">
-                  contato@upaonservices.com
+                <a target="blank" href="mailto:contato@upaonservices.com" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors text-sm">
+                  contatoupaonservices@gmail.com
                 </a>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-primary flex-shrink-0" />
-                <a href="tel:+5598999999999" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors text-sm">
-                  (98) 99999-9999
+                <a target="blank" href="tel:+5598984800522" className="text-primary-foreground/70 hover:text-primary-foreground transition-colors text-sm">
+                  (98) 989480-0522
                 </a>
               </li>
             </ul>
@@ -121,10 +127,10 @@ const Footer = () => {
         <div className="pt-8 border-t border-primary-foreground/10">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-primary-foreground/50 text-sm">
-              © 2024 UpaonServices. Todos os direitos reservados.
+              © {anoAtual} UpaonServices. Todos os direitos reservados.
             </p>
             <p className="text-primary-foreground/50 text-sm">
-              Feito com ❤️ para São Luís do Maranhão
+              Conectando toda a Ilha do Amor
             </p>
           </div>
         </div>

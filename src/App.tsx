@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import { Cadastro } from "./pages/role";
 import { Prestador } from "./pages/cadastro/prestador";
 import { Cliente } from "./pages/cadastro/cliente";
+import { LoginPage } from "./pages/login";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/cadastro/prestador" element={<Prestador />} />
           <Route path="/cadastro/cliente" element={<Cliente />} />
+          <Route path="login" element={<LoginPage />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

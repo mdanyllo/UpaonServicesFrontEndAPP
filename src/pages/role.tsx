@@ -12,8 +12,8 @@ function handleChoose(path: "/cadastro/cliente" | "/cadastro/prestador") {
       <div className="w-full max-w-4xl bg-white rounded-2xl shadow-xl p-8 space-y-8">
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold">
-            Como você deseja usar a Upaon
-            <span className="text-primary">Services</span>?
+            Como você deseja usar a {""}
+            <span className="text-gradient-hero">UpaonServices</span>?
           </h1>
           <p className="text-gray-500">
             Escolha a opção que melhor representa você

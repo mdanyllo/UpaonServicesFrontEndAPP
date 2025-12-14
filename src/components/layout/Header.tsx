@@ -13,10 +13,10 @@ const Header = () => {
           {/* Left: Logo */}
           <a href="/" className="flex items-center gap-2 z-20">
             <div className="w-10 h-10 flex items-center justify-center">
-              <img className="rounded-sm" src="/logo1.png" alt="" />
+              <img className="rounded-lg" src="/logo1.png" alt="" />
             </div>
             <span className="font-display font-bold text-xl text-foreground">
-              Upaon<span className="text-primary">Services</span>
+              UpaonServices
             </span>
           </a>
 
@@ -35,7 +35,7 @@ const Header = () => {
               href="#como-funciona"
               className="text-muted-foreground hover:text-foreground transition-colors font-medium"
             >
-              Como Funciona
+              Como Funciona?
             </a>
             <a
               href="#profissionais"
@@ -49,9 +49,8 @@ const Header = () => {
           <div className="ml-auto flex items-center z-20">
             {/* Buttons */}
             <div className="hidden md:flex items-center gap-3">
-              <Button variant="ghost" size="sm">
-                <a href="/login">Entrar</a>
-                
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/login">Entrar</Link>
               </Button>
               <Button variant="hero" size="sm" asChild>
                 <Link to="/cadastro">Cadastrar</Link>
@@ -104,8 +103,8 @@ const Header = () => {
             </a>
 
             <div className="flex flex-col gap-2 pt-4 border-t border-border">
-              <Button variant="ghost" className="justify-start" onClick={() => setIsMenuOpen(false)}>
-                Entrar
+              <Button variant="ghost" className="justify-start" asChild>
+                <Link to="/login">Entrar</Link>
               </Button>
               <Button variant="hero" size="sm" asChild>
                 <Link to="/cadastro">Cadastrar</Link>
