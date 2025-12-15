@@ -3,9 +3,24 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useNavigate } from "react-router-dom"
 
+const categories = [
+  "Eletricista",
+  "Encanador",
+  "Técnico em Informática",
+  "Diarista",
+  "Pintor",
+  "Pedreiro",
+  "Mecânico",
+  "Montador de Móveis",
+  "Refrigeração",
+  "Barbeiro",
+  "Outros",
+]
+
 export function Prestador() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [category, setCategory] = useState("")
   const navigate = useNavigate()
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -15,21 +30,30 @@ export function Prestador() {
 
     const formData = new FormData(e.currentTarget)
 
+    const finalCategory =
+      category === "Outros"
+        ? (formData.get("customCategory") as string)
+        : category
+
     const data = {
       name: formData.get("name") as string,
       email: formData.get("email") as string,
       password: formData.get("password") as string,
       phone: formData.get("phone") as string,
       description: formData.get("description") as string,
+      category: finalCategory,
       role: "PROVIDER",
     }
 
     try {
-      const res = await fetch("https://upaonservicesbackprototipo.onrender.com/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      })
+      const res = await fetch(
+        "https://upaonservicesbackprototipo.onrender.com/auth/register",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        }
+      )
 
       if (!res.ok) {
         const err = await res.json()
@@ -87,6 +111,31 @@ export function Prestador() {
             placeholder="Telefone (opcional)"
             className="rounded-xl"
           />
+
+          {/* SELECT DE CATEGORIA */}
+          <select
+            required
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
+          >
+            <option value="">Selecione sua categoria</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+
+          {/* INPUT EXTRA SE FOR "OUTROS" */}
+          {category === "Outros" && (
+            <Input
+              name="customCategory"
+              placeholder="Descreva sua categoria"
+              required
+              className="rounded-xl"
+            />
+          )}
 
           <Input
             name="description"

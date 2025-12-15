@@ -3,8 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 
-const HeroSection = () => {
+type Stats = {
+  providers: number
+  clients: number
+  services: number
+}
 
+const HeroSection = () => {
   
   const cities = [
     { name: "São Luís-MA", time: 8000 },
@@ -16,6 +21,8 @@ const HeroSection = () => {
 
   const [index, setIndex] = useState(0);
 
+  const [stats, setStats] = useState<Stats | null>(null)
+
   useEffect(() => {
     const currentTime = cities[index].time;
 
@@ -25,6 +32,22 @@ const HeroSection = () => {
 
     return () => clearTimeout(timer);
   }, [index]);
+
+
+  //Stats rota
+
+  useEffect(() => {
+    async function loadStats() {
+      const res = await fetch(
+        "https://upaonservicesbackprototipo.onrender.com/stats"
+      )
+
+      const data = await res.json()
+      setStats(data)
+    }
+
+    loadStats()
+  }, [])
 
   return (
     <section className="relative min-h-[90vh] flex items-center pt-20 overflow-hidden bg-gradient-sunset">
@@ -97,19 +120,19 @@ const HeroSection = () => {
             </div>
           </div>
 
-          {/* Stats */}
+          {/* Stats */}  
           <div className="grid grid-cols-3 gap-4 md:gap-8 mt-16 max-w-xl mx-auto animate-fade-in" style={{ animationDelay: "0.5s" }}>
             <div className="text-center">
-              <p className="font-display font-bold text-2xl md:text-3xl text-foreground">500+</p>
+              <p className="font-display font-bold text-2xl md:text-3xl text-foreground">{stats?.providers ?? 0}</p>
               <p className="text-sm text-muted-foreground">Profissionais</p>
             </div>
             <div className="text-center">
-              <p className="font-display font-bold text-2xl md:text-3xl text-foreground">2.5k+</p>
-              <p className="text-sm text-muted-foreground">Serviços</p>
+              <p className="font-display font-bold text-2xl md:text-3xl text-foreground">{stats?.clients ?? 0}</p>
+              <p className="text-sm text-muted-foreground">Usuários</p>
             </div>
             <div className="text-center">
-              <p className="font-display font-bold text-2xl md:text-3xl text-foreground">4.8★</p>
-              <p className="text-sm text-muted-foreground">Avaliação</p>
+              <p className="font-display font-bold text-2xl md:text-3xl text-foreground">2.5</p>
+              <p className="text-sm text-muted-foreground">Serviços</p>
             </div>
           </div>
         </div>
