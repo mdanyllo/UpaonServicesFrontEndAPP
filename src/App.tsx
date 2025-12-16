@@ -13,6 +13,8 @@ import { ResultadosPesquisa } from "./pages/resultadospesquisa";
 import { CentralDeAjuda } from "./pages/suporte/centraldeajuda";
 import { TermosDeUso } from "./pages/suporte/termosdeuso";
 import { PoliticaDePrivacidade } from "./pages/suporte/politicadeprivacidade";
+import ProviderDashboard from "./pages/dashboard/prestador";
+import { EditProfile } from "./pages/dashboard/editarperfil";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +32,8 @@ const App = () => (
           <Route path="/cadastro/prestador" element={<Prestador />} />
           <Route path="/cadastro/cliente" element={<Cliente />} />
           <Route path="login" element={<LoginPage />} />
+          <Route path="/dashboard/prestador" element={< ProviderDashboard/>} />
+          <Route path="/dashboard/editarperfil" element={<EditProfile />} />
           <Route path="/resultados"element={<ResultadosPesquisa />}/>
           <Route path="/suporte/centraldeajuda" element={<CentralDeAjuda />} />
           <Route path="/suporte/termosdeuso" element={<TermosDeUso/>} />

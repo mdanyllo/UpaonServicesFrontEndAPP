@@ -14,10 +14,11 @@ export function LoginPage() {
     setError("");
 
     const formData = new FormData(e.currentTarget);
-    const data = {
+    const loginPayload = {
       email: formData.get("email") as string,
       password: formData.get("password") as string,
     };
+
 
     try {
       const res = await fetch(
@@ -25,17 +26,24 @@ export function LoginPage() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
+          body: JSON.stringify(loginPayload),
         }
       );
 
+      const data: any = await res.json()
+
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || "Erro ao fazer login");
+        throw new Error(data.message || "Erro ao fazer login");
       }
 
-      alert("Login realizado com sucesso");
-      navigate("/");
+      localStorage.setItem("upaon_token", data.token)
+      localStorage.setItem("upaon_user", JSON.stringify(data.user))
+
+      if (data.user.role === "PROVIDER") {
+        navigate("/dashboard/prestador")
+      } else {
+        navigate("/dashboard/cliente")
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {

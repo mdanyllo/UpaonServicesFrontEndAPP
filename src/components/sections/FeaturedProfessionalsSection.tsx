@@ -10,7 +10,7 @@ type Professional = {
   city?: string // 👈 preparado pro backend
   user: {
     name: string
-    photo?: string
+    avatarUrl?: string
   }
 }
 
@@ -72,8 +72,8 @@ const FeaturedProfessionalsSection = () => {
           {!loading &&
             professionals.map((pro, index) => {
               const name = pro.user?.name || "Profissional"
-              const photo =
-                pro.user?.photo ||
+              const avatarUrl =
+                pro.user?.avatarUrl ||
                 `https://ui-avatars.com/api/?name=${encodeURIComponent(
                   name
                 )}&background=random`
@@ -81,7 +81,7 @@ const FeaturedProfessionalsSection = () => {
               const rating =
                 typeof pro.rating === "number" ? pro.rating : 5.0
 
-              const city = pro.city || DEFAULT_CITY // 👈 lógica correta aqui
+              const city = pro.city || DEFAULT_CITY
 
               return (
                 <div
@@ -92,7 +92,7 @@ const FeaturedProfessionalsSection = () => {
                   {/* Image */}
                   <div className="relative aspect-square overflow-hidden">
                     <img
-                      src={photo}
+                      src={avatarUrl}
                       alt={name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
@@ -126,8 +126,6 @@ const FeaturedProfessionalsSection = () => {
                     <div className="flex items-center gap-1 text-sm text-muted-foreground mb-4">
                       <MapPin className="w-4 h-4" />
                       <span>{city}</span>
-                      <span className="mx-1">•</span>
-                      <span>Novo na plataforma</span>
                     </div>
 
                     <div className="flex items-center justify-between pt-4 border-t border-border">
