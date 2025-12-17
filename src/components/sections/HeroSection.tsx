@@ -25,6 +25,23 @@ const HeroSection = () => {
   const [stats, setStats] = useState<Stats | null>(null)
   const [searchText, setSearchText] = useState("")
 
+  //Vê se tá logado
+      useEffect(() => {
+        const storedUser = localStorage.getItem("upaon_user")
+        const storedToken = localStorage.getItem("upaon_token")
+    
+        if (storedUser && storedToken) {
+          const user = JSON.parse(storedUser)
+          
+          // Redireciona imediatamente baseado no tipo de usuário
+          if (user.role === "PROVIDER") {
+            navigate("/dashboard/prestador", { replace: true })
+          } else {
+            navigate("/dashboard/cliente", { replace: true })
+          }
+        }
+      }, [navigate])
+
   // animação das cidades
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -37,52 +54,86 @@ const HeroSection = () => {
   // stats
   useEffect(() => {
     async function loadStats() {
-      const res = await fetch(
-        "https://upaonservicesbackprototipo.onrender.com/stats"
-      )
-      const data = await res.json()
-      setStats(data)
+      try {
+        const res = await fetch(
+          "https://upaonservicesbackprototipo.onrender.com/stats"
+        )
+        const data = await res.json()
+        setStats(data)
+      } catch (error) {
+        console.error("Erro ao carregar stats", error)
+      }
     }
 
     loadStats()
   }, [])
 
- //pesquisar categorias e serviços
- const CATEGORIES = [
-  "Tecnologia",
-  "Reparos",
-  "Limpeza",
-  "Pintura",
-  "Construção",
-  "Beleza",
-  "Babá",
-  "Cuidadores",
-  "Culinária",
-  "Mudança",
-  "Fotografia",
-  "Motoristas",
-  "Outros",
-]
+  // --- LÓGICA DE PESQUISA INTELIGENTE ---
 
-function handleSearch(value?: string) {
-  const query = (value ?? searchText).trim()
-  if (!query) return
+  const CATEGORIES = [
+    "Tecnologia", "Reparos", "Limpeza", "Pintura", "Construção",
+    "Beleza", "Babá", "Cuidadores", "Culinária", "Mudança",
+    "Fotografia", "Motoristas", "Outros",
+  ]
 
-  const params = new URLSearchParams()
-
-  // verifica se o texto é uma categoria
-  const matchedCategory = CATEGORIES.find(
-    (cat) => cat.toLowerCase() === query.toLowerCase()
-  )
-
-  if (matchedCategory) {
-    params.append("category", matchedCategory)
-  } else {
-    params.append("q", query)
+  // Mapa para traduzir termos comuns em Categorias do sistema
+  const KEYWORD_MAP: Record<string, string> = {
+    "eletricista": "Reparos",
+    "encanador": "Reparos",
+    "conserto": "Reparos",
+    "técnico": "Reparos",
+    "diarista": "Limpeza",
+    "faxina": "Limpeza",
+    "limpeza": "Limpeza",
+    "pedreiro": "Construção",
+    "obra": "Construção",
+    "pintor": "Pintura",
+    "pintura": "Pintura",
+    "babá": "Babá",
+    "cuidador": "Cuidadores",
+    "enfermeira": "Cuidadores",
+    "motorista": "Motoristas",
+    "uber": "Motoristas",
+    "frete": "Mudança",
+    "mudança": "Mudança",
+    "bolo": "Culinária",
+    "comida": "Culinária",
+    "unha": "Beleza",
+    "cabelo": "Beleza",
+    "maquiagem": "Beleza",
+    "computador": "Tecnologia",
+    "formatar": "Tecnologia"
   }
 
-  navigate(`/resultados?${params.toString()}`)
-}
+  function handleSearch(value?: string) {
+    // 1. Pega o termo digitado ou clicado
+    const rawQuery = (value ?? searchText).trim()
+    if (!rawQuery) return
+
+    const queryLower = rawQuery.toLowerCase()
+    const params = new URLSearchParams()
+
+    // 2. Verifica se o termo JÁ É uma categoria exata (Ex: clicou em "Limpeza")
+    const exactCategory = CATEGORIES.find(
+      (cat) => cat.toLowerCase() === queryLower
+    )
+
+    if (exactCategory) {
+      params.append("category", exactCategory)
+    } 
+    // 3. Verifica se o termo está no nosso MAPA (Ex: digitou "Eletricista" -> vira "Reparos")
+    else if (KEYWORD_MAP[queryLower]) {
+      params.append("category", KEYWORD_MAP[queryLower])
+    }
+    // 4. Se não achou categoria, manda como busca de texto genérica (q)
+    else {
+      params.append("q", rawQuery)
+    }
+
+    navigate(`/resultados?${params.toString()}`)
+  }
+
+  // -------------------------------------
 
   return (
     <section className="relative min-h-[90vh] flex items-center pt-20 overflow-hidden bg-gradient-sunset">
@@ -96,7 +147,7 @@ function handleSearch(value?: string) {
         <div className="max-w-4xl mx-auto text-center">
 
           {/* Cidade */}
-          <div className="mt-2 inline-flex items-center gap-2 bg-card/80 backdrop-blur-sm border border-border rounded-full px-4 py-2 mb-8 animate-fade-in">
+          <div className="inline-flex items-center gap-2 bg-card/80 backdrop-blur-sm border border-border rounded-full px-4 py-2 mb-8 animate-fade-in">
             <MapPin className="w-4 h-4 text-primary" />
             <span className="text-sm text-muted-foreground">
               {cities[index].name}
@@ -160,7 +211,7 @@ function handleSearch(value?: string) {
             </div>
           </div>
 
-          {/* Stats */}{/* Mais pra frente quando tiver mais gente
+          {/* Stats - Desativado por enquanto
           <div className="grid grid-cols-3 gap-8 mt-16 max-w-xl mx-auto animate-fade-in">
             <div>
               <p className="font-bold text-2xl">{stats?.providers ?? 0}</p>
@@ -174,7 +225,7 @@ function handleSearch(value?: string) {
               <p className="font-bold text-2xl">10+</p>
               <p className="text-sm text-muted-foreground">Categorias</p>
             </div>
-          </div>*/}
+          </div> */}
 
         </div>
       </div>

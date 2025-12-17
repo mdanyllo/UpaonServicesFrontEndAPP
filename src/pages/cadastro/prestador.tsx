@@ -36,17 +36,28 @@ export function Prestador() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setError("")
-
+    
+    // 1. Verifica Termos
     if (!acceptTerms) {
       setError("Você precisa aceitar os Termos de Uso para continuar.")
-        setLoading(false)
+      return
+    }
+
+    const formData = new FormData(e.currentTarget)
+    const password = formData.get("password") as string
+    const email = formData.get("email") as string
+
+    // 2. Verifica Senha Forte
+    // Regra: 8 caracteres, 1 maiúscula, 1 minúscula, 1 número, 1 símbolo
+    const senhaForteRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/
+
+    if (!senhaForteRegex.test(password)) {
+      setError("A senha deve ter pelo menos 8 caracteres, incluir maiúscula, minúscula, número e símbolo (!@#$).")
       return
     }
 
     setLoading(true)
-
-    const formData = new FormData(e.currentTarget)
+    setError("")
 
     const finalCategory =
       category === "Outros"
@@ -55,8 +66,8 @@ export function Prestador() {
 
     const data = {
       name: formData.get("name") as string,
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
+      email: email,
+      password: password,
       phone: formData.get("phone") as string,
       description: formData.get("description") as string,
       category: finalCategory,
@@ -80,7 +91,9 @@ export function Prestador() {
         throw new Error(err.message || "Erro ao criar conta")
       }
 
-      navigate("/")
+      // 3. SUCESSO: Redireciona para a verificação com o email na URL
+      navigate(`/verificar-conta?email=${email}`)
+
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -112,7 +125,7 @@ export function Prestador() {
         <div className="space-y-4">
           <Input name="name" placeholder="Nome completo" required className="rounded-xl" />
           <Input name="email" type="email" placeholder="Email" required className="rounded-xl" />
-          <Input name="phone" placeholder="Telefone (opcional)" className="rounded-xl" />
+          <Input name="phone" placeholder="WhatsApp (ex: 98900000000)" className="rounded-xl" />
 
           <select
             name="city"
@@ -169,6 +182,9 @@ export function Prestador() {
             required
             className="rounded-xl"
           />
+          <p className="text-xs text-muted-foreground ml-1">
+            Mínimo 8 caracteres, com maiúscula, número e símbolo (!@#$).
+          </p>
         </div>
 
         <div className="flex items-start gap-2 mt-4">

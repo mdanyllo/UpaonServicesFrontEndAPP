@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { ArrowLeft, Camera, Save, User, Briefcase, Mail, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Input } from "@/components/ui/input" // Se você usar input simples, pode manter, mas aqui usaremos textarea e select manuais
 
 const CATEGORIES = [
   "Tecnologia", "Reparos", "Limpeza", "Pintura", "Construção",
@@ -14,8 +14,10 @@ export function EditProfile() {
   const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement>(null)
   
-  const [loading, setLoading] = useState(false)
+  // Estados de Carregamento e Dados
   const [user, setUser] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false) // Mudei o nome pra ficar mais claro
   
   // Estados do Formulário
   const [description, setDescription] = useState("")
@@ -25,28 +27,50 @@ export function EditProfile() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
-  // 1. Carregar dados ao abrir a tela
+  // --- 1. EFEITO ÚNICO E PODEROSO (Segurança + Carregamento) ---
   useEffect(() => {
     const storedUser = localStorage.getItem("upaon_user")
-    if (storedUser) {
+    const storedToken = localStorage.getItem("upaon_token")
+
+    // 1.1 Checa Login Básico
+    if (!storedUser || !storedToken) {
+      navigate("/login")
+      return
+    }
+
+    try {
       const parsedUser = JSON.parse(storedUser)
+
+      // 1.2 Checa se é Prestador
+      if (parsedUser.role !== "PROVIDER") {
+        console.warn("Acesso negado: Apenas prestadores podem editar perfil de serviço.")
+        navigate("/dashboard/cliente", { replace: true })
+        return
+      }
+
+      // 1.3 Se passou em tudo, preenche os estados
       setUser(parsedUser)
       
-      // Preencher campos existentes
+      // Preenche campos do formulário (com fallback para string vazia)
       setDescription(parsedUser.provider?.description || "")
       setCategory(parsedUser.provider?.category || "")
       setPreviewUrl(parsedUser.avatarUrl || null)
-    } else {
+      
+      // Libera o loading
+      setIsLoading(false)
+
+    } catch (error) {
+      console.error("Erro ao processar usuário", error)
+      localStorage.clear()
       navigate("/login")
     }
   }, [navigate])
-
-  // 2. Lógica de Preview da Imagem (O "Pulo do Gato")
+  
+  // 2. Lógica de Preview da Imagem
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (file) {
       setSelectedFile(file)
-      // Cria uma URL temporária só pra mostrar na tela agora
       const objectUrl = URL.createObjectURL(file)
       setPreviewUrl(objectUrl)
     }
@@ -55,28 +79,23 @@ export function EditProfile() {
   // 3. Enviar para o Backend
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setLoading(true)
+    setIsSaving(true)
 
     try {
       const token = localStorage.getItem("upaon_token")
       const formData = new FormData()
 
-      // Adiciona os textos
       formData.append("description", description)
       formData.append("category", category)
       
-      // Só adiciona a imagem se o usuário trocou
       if (selectedFile) {
         formData.append("avatar", selectedFile)
       }
 
-      // ATENÇÃO: Aqui vai sua rota de atualização (PUT ou PATCH)
       const res = await fetch("https://upaonservicesbackprototipo.onrender.com/users/profile", {
-        method: "PATCH", // ou PUT
+        method: "PATCH",
         headers: {
           "Authorization": `Bearer ${token}`,
-          // Nota: Não coloque 'Content-Type': 'application/json' quando usar FormData!
-          // O navegador define isso automaticamente como multipart/form-data
         },
         body: formData,
       })
@@ -85,20 +104,34 @@ export function EditProfile() {
 
       const updatedUser = await res.json()
       
-      // Atualiza o localStorage com os dados novos
+      // Atualiza o localStorage e o estado local
       localStorage.setItem("upaon_user", JSON.stringify(updatedUser))
+      setUser(updatedUser) // Atualiza visualmente se a pessoa não sair da tela
       
-      // Volta pro dashboard
+      // Redireciona com feedback visual (opcional, aqui vai direto)
       navigate("/dashboard/prestador")
 
     } catch (error) {
       console.error(error)
       alert("Erro ao salvar perfil. Tente novamente.")
     } finally {
-      setLoading(false)
+      setIsSaving(false)
     }
   }
 
+  // --- TELA DE LOADING ---
+  // (Importante vir antes de qualquer outro return)
+  if (isLoading) {
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-sunset">
+            <div className="animate-spin text-primary">
+                <Loader2 className="w-10 h-10" />
+            </div>
+        </div>
+    )
+  }
+
+  // Se passou do loading e user ainda é null (caso raro de erro), não mostra nada
   if (!user) return null
 
   return (
@@ -118,7 +151,7 @@ export function EditProfile() {
           <Button 
             variant="ghost" 
             size="icon" 
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/dashboard/prestador")} // Melhor forçar ir pro dashboard do que -1 (histórico)
             className="rounded-full hover:bg-white/10"
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
@@ -147,7 +180,6 @@ export function EditProfile() {
             </div>
             <p className="mt-3 text-sm text-muted-foreground font-medium">Toque para alterar a foto</p>
             
-            {/* Input Invisível */}
             <input 
               type="file" 
               ref={fileInputRef} 
@@ -214,7 +246,7 @@ export function EditProfile() {
               type="button" 
               variant="ghost" 
               className="w-full rounded-xl"
-              onClick={() => navigate(-1)}
+              onClick={() => navigate("/dashboard/prestador")}
             >
               Cancelar
             </Button>
@@ -222,9 +254,9 @@ export function EditProfile() {
               type="submit" 
               variant="hero" 
               className="w-full rounded-xl shadow-lg shadow-primary/20"
-              disabled={loading}
+              disabled={isSaving}
             >
-              {loading ? (
+              {isSaving ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Salvando...
                 </>

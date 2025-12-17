@@ -1,6 +1,7 @@
 import { Star, MapPin, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 type Professional = {
   id: string
@@ -19,6 +20,8 @@ const DEFAULT_CITY = "São Luís - MA"
 const FeaturedProfessionalsSection = () => {
   const [professionals, setProfessionals] = useState<Professional[]>([])
   const [loading, setLoading] = useState(true)
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     async function loadFeatured() {
@@ -45,6 +48,10 @@ const FeaturedProfessionalsSection = () => {
 
     loadFeatured()
   }, [])
+
+    function irLogin() {
+    navigate("login")
+  } 
 
   return (
     <section id="profissionais" className="py-20 bg-background">
@@ -115,12 +122,13 @@ const FeaturedProfessionalsSection = () => {
                           {pro.category}
                         </p>
                       </div>
+                      {/*Mais pra frente */} {/*
                       <div className="flex items-center gap-1 bg-sun/20 px-2 py-1 rounded-lg">
                         <Star className="w-4 h-4 text-sun fill-sun" />
                         <span className="text-sm font-semibold text-accent-foreground">
                           {rating.toFixed(1)}
                         </span>
-                      </div>
+                      </div>*/}
                     </div>
 
                     <div className="flex items-center gap-1 text-sm text-muted-foreground mb-4">
@@ -138,7 +146,7 @@ const FeaturedProfessionalsSection = () => {
                           /serviço
                         </span>
                       </div>
-                      <Button variant="default" size="sm">
+                      <Button onClick={irLogin} variant="default" size="sm">
                         Contratar
                       </Button>
                     </div>

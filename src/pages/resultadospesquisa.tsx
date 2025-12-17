@@ -1,65 +1,131 @@
 import { useEffect, useState } from "react"
-import { useSearchParams } from "react-router-dom"
-import { Phone, Star } from "lucide-react"
+import { useSearchParams, useNavigate } from "react-router-dom"
+import { Phone, Star, User, Search, MapPin } from "lucide-react"
+import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import Header from "@/components/layout/Header"
+import Fora from "@/components/layout/headerFora"
 
 type Provider = {
   id: string
   category: string
+  city: string
   description?: string
   rating: number
   user: {
     id: string
     name: string
     phone?: string
+    avatarUrl?: string | null // <--- ADICIONEI ISSO AQUI NA TIPAGEM
   }
 }
 
 export function ResultadosPesquisa() {
   const [providers, setProviders] = useState<Provider[]>([])
   const [loading, setLoading] = useState(true)
-
   const [searchParams] = useSearchParams()
+  const [searchText, setSearchText] = useState("")
 
-const category = searchParams.get("category")
-const q = searchParams.get("q")
+  const navigate = useNavigate()
 
-useEffect(() => {
-  async function loadProviders() {
-    try {
-      setLoading(true)
+  const category = searchParams.get("category")
+  const q = searchParams.get("q")
 
-      const params = new URLSearchParams()
-      if (category) params.append("category", category)
-      if (q) params.append("q", q)
+  useEffect(() => {
+    async function loadProviders() {
+      try {
+        setLoading(true)
+        const params = new URLSearchParams()
+        if (category) params.append("category", category)
+        if (q) params.append("q", q)
 
-      const res = await fetch(
-        `https://upaonservicesbackprototipo.onrender.com/providers?${params.toString()}`
-      )
+        const res = await fetch(
+          `https://upaonservicesbackprototipo.onrender.com/providers?${params.toString()}`
+        )
 
-      if (!res.ok) throw new Error("Erro na resposta da API")
+        if (!res.ok) throw new Error("Erro na resposta da API")
 
-      const data = await res.json()
-      setProviders(data)
-    } catch (err) {
-      console.error("Erro ao buscar prestadores", err)
-      setProviders([])
-    } finally {
-      setLoading(false)
+        const data = await res.json()
+        setProviders(data)
+      } catch (err) {
+        console.error("Erro ao buscar prestadores", err)
+        setProviders([])
+      } finally {
+        setLoading(false)
+      }
     }
+
+    loadProviders()
+  }, [category, q])
+
+   const CATEGORIES = [
+  "Tecnologia",
+  "Reparos",
+  "Limpeza",
+  "Pintura",
+  "Construção",
+  "Beleza",
+  "Babá",
+  "Cuidadores",
+  "Culinária",
+  "Mudança",
+  "Fotografia",
+  "Motoristas",
+  "Outros",
+]
+
+  function handleSearch(value?: string) {
+  const query = (value ?? searchText).trim()
+  if (!query) return
+
+  const params = new URLSearchParams()
+
+  // verifica se o texto é uma categoria
+  const matchedCategory = CATEGORIES.find(
+    (cat) => cat.toLowerCase() === query.toLowerCase()
+  )
+
+  if (matchedCategory) {
+    params.append("category", matchedCategory)
+  } else {
+    params.append("q", query)
   }
 
-  loadProviders()
-}, [category, q])
+  navigate(`/resultados?${params.toString()}`)
+}
 
 
   return (
     <>
-      <Header />
-
+      <Fora />
+      
       <section className="min-h-screen bg-gradient-sunset pt-28 px-4">
         <div className="container mx-auto max-w-6xl">
+
+          {/* Busca */}
+          <div className="bg-card mb-6 rounded-2xl p-2 shadow-large max-w-2xl mx-auto animate-fade-in">
+            <div className="flex flex-col md:flex-row gap-2">
+              <div className="flex-1 flex items-center gap-3 px-4">
+                <Search className="w-5 h-5 text-muted-foreground" />
+                <Input
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && handleSearch()
+                  }
+                  placeholder="Que serviço você precisa?"
+                  className="border-0 bg-transparent focus-visible:ring-0"
+                />
+              </div>
+
+              <Button
+                variant="hero"
+                size="lg"
+                onClick={() => handleSearch()}
+              >
+                Buscar
+              </Button>
+            </div>
+          </div>
 
           {/* Header */}
           <div className="mb-10 text-center">
@@ -69,7 +135,6 @@ useEffect(() => {
                 {category || q || "sua pesquisa"}
               </span>
             </h1>
-
             <p className="text-muted-foreground mt-2">
               Profissionais disponíveis para atender você
             </p>
@@ -90,6 +155,7 @@ useEffect(() => {
           )}
 
           {/* Grid */}
+          {/* Corrigi a estrutura do grid aqui, tirei a div extra que quebrava o layout */}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {providers.map((provider) => (
               <div
@@ -97,36 +163,64 @@ useEffect(() => {
                 className="bg-card/90 backdrop-blur-sm border border-border rounded-2xl shadow-large p-6 flex flex-col justify-between hover:scale-[1.02] transition-transform"
               >
                 <div>
-                  <h2 className="font-semibold text-xl text-foreground">
-                    {provider.user.name}
-                  </h2>
+                  {/* --- MUDANÇA AQUI: CABEÇALHO DO CARD COM FOTO --- */}
+                  <div className="flex items-start gap-4 mb-4">
+                    
+                    {/* Container da Foto */}
+                    <div className="relative w-14 h-14 rounded-full overflow-hidden bg-muted flex-shrink-0 border border-border/50 shadow-sm">
+                      {provider.user.avatarUrl ? (
+                        <img 
+                          src={provider.user.avatarUrl} 
+                          alt={provider.user.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        // Fallback se não tiver foto
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                          <User className="w-7 h-7" />
+                        </div>
+                      )}
+                    </div>
 
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {provider.category}
-                  </p>
-
+                    {/* Nome e Categoria */}
+                    <div>
+                      <h2 className="font-semibold text-lg text-foreground leading-tight">
+                        {provider.user.name}
+                      </h2>
+                      <p className="text-sm text-primary font-medium mt-1">
+                        {provider.category}
+                      </p>
+                    </div>
+                  </div>
+                  {/* ------------------------------------------------ */}
                   {provider.description && (
-                    <p className="text-sm text-muted-foreground mt-3">
+                    <p className="text-sm text-muted-foreground line-clamp-3">
                       {provider.description}
                     </p>
                   )}
                 </div>
 
-                <div className="mt-6 flex items-center justify-between">
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <Star className="w-4 h-4 text-yellow-500" />
-                    {provider.rating.toFixed(1)}
+                  {/* Cidade com Ícone */}
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground mt-4">
+                    <MapPin className="w-3 h-3" />
+                    <span className="truncate max-w-[150px]">{provider.city}</span>
                   </div>
 
+                <div className="mt-6 flex items-center justify-between pt-4 border-t border-border/50">
+                  {/* Mais pra frente */} {/* 
+                  <div className="flex items-center gap-1 text-sm text-foreground font-medium">
+                    <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                    {provider.rating.toFixed(1)}
+                  </div>*/}
+                  
                   {provider.user.phone && (
                     <Button
                       variant="hero"
                       size="sm"
-                      onClick={() =>
-                        window.open(`tel:${provider.user.phone}`)
-                      }
+                      onClick={() => window.open(`tel:${provider.user.phone}`)}
+                      className="rounded-xl"
                     >
-                      <Phone className="w-4 h-4 mr-1" />
+                      <Phone className="w-4 h-4 mr-2" />
                       Contato
                     </Button>
                   )}

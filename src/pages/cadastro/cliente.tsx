@@ -9,25 +9,42 @@ export function Cliente() {
   const navigate = useNavigate()
   const [acceptTerms, setAcceptTerms] = useState(false)
 
-
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    
+    // 1. Verifica os termos ANTES de tudo
+    if (!acceptTerms) {
+      setError("Você precisa aceitar os Termos de Uso para continuar.")
+      return
+    }
+
+    const formData = new FormData(e.currentTarget)
+    const password = formData.get("password") as string
+    const email = formData.get("email") as string
+
+    // 2. Verifica Senha Forte (NOVA LÓGICA)
+    // Regra: 8 caracteres, 1 maiúscula, 1 minúscula, 1 número, 1 símbolo
+    const senhaForteRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/
+
+    if (!senhaForteRegex.test(password)) {
+      setError("A senha deve ter pelo menos 8 caracteres, incluir maiúscula, minúscula, número e símbolo (!@#$).")
+      return
+    }
+
     setLoading(true)
     setError("")
 
-    const formData = new FormData(e.currentTarget)
-
     const data = {
       name: formData.get("name") as string,
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
+      email: email,
+      password: password,
       phone: formData.get("phone") as string,
       role: "CLIENT",
     }
 
     try {
       const res = await fetch(
-        "https://upaonservicesbackprototipo.onrender.com/auth/register",
+        "https://upaonservicesbackprototipo.onrender.com/auth/register", // Mantive sua URL local
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -40,12 +57,9 @@ export function Cliente() {
         throw new Error(err.message || "Erro ao criar conta")
       }
 
-      if (!acceptTerms) {
-      setError("Você precisa aceitar os Termos de Uso para continuar.")
-      return
-      }
+      // 3. SUCESSO: Redireciona para a verificação com o email na URL
+      navigate(`/verificar-conta?email=${email}`)
 
-      navigate("/")
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -103,6 +117,9 @@ export function Cliente() {
             required
             className="rounded-xl"
           />
+          <p className="text-xs text-muted-foreground ml-1">
+            Mínimo 8 caracteres, com maiúscula, número e símbolo (!@#$).
+          </p>
         </div>
 
         <div className="flex items-start gap-2 mt-4">
@@ -137,7 +154,7 @@ export function Cliente() {
         </div>
 
         {error && (
-          <p className="text-sm text-destructive text-center">
+          <p className="text-sm text-destructive text-center font-medium bg-red-500/10 p-2 rounded-lg border border-red-500/20">
             {error}
           </p>
         )}

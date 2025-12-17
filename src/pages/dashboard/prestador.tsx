@@ -8,21 +8,45 @@ import {
   LogOut, 
   MapPin, 
   Settings,
-  Clock
+  Clock,
+  Loader2,
+  ShoppingBag // <--- Ícone para o botão de compras
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export default function ProviderDashboard() {
   const navigate = useNavigate()
   const [user, setUser] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Carregar dados do usuário salvo no login
+    // 1. Pega os dados
     const storedUser = localStorage.getItem("upaon_user")
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
-    } else {
-      // Se não tiver user, manda pro login
+    const storedToken = localStorage.getItem("upaon_token")
+
+    // 2. Se não tiver dados, tchau -> Login
+    if (!storedUser || !storedToken) {
+      navigate("/login")
+      return
+    }
+
+    try {
+      const parsedUser = JSON.parse(storedUser)
+
+      // 3. Se não for PRESTADOR -> Vai para Dashboard de Cliente
+      if (parsedUser.role !== "PROVIDER") {
+        console.warn("Acesso negado: Usuário não é prestador")
+        navigate("/dashboard/cliente", { replace: true })
+        return
+      }
+
+      // 4. Tudo certo? Salva o user e libera o carregamento
+      setUser(parsedUser)
+      setIsLoading(false)
+
+    } catch (error) {
+      // Se der erro no JSON, limpa tudo e manda pro login
+      localStorage.clear()
       navigate("/login")
     }
   }, [navigate])
@@ -33,17 +57,30 @@ export default function ProviderDashboard() {
     navigate("/")
   }
 
-  if (!user) return null
-
-  //função para o botão redirecionar para editarperfil.tsx
   function editarPerfil() {
     navigate("/dashboard/editarperfil")
   } 
 
+  // --- FUNÇÃO PARA IR COMPRAR (MODO CLIENTE) ---
+  function irParaModoCliente() {
+    navigate("/dashboard/cliente")
+  }
+
+  // --- TELA DE LOADING ---
+  if (isLoading || !user) {
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-sunset">
+            <div className="animate-spin text-primary">
+                <Loader2 className="w-10 h-10" />
+            </div>
+        </div>
+    )
+  }
+
   return (
     <section className="relative min-h-screen pt-24 pb-12 bg-gradient-sunset overflow-hidden">
       
-      {/* --- BG ANIMADO (Igual ao Hero) --- */}
+      {/* --- BG ANIMADO --- */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 right-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse-soft" />
         <div className="absolute bottom-20 left-10 w-96 h-96 bg-ocean/10 rounded-full blur-3xl animate-pulse-soft" />
@@ -70,12 +107,23 @@ export default function ProviderDashboard() {
             </p>
           </div>
 
-          <div className="flex gap-3">
-            <Button variant="outline" size="sm" className="rounded-xl gap-2" onClick={handleLogout}>
-              <LogOut className="w-4 h-4" /> Sair
+          <div className="flex gap-3 flex-wrap">
+            {/* --- BOTÃO MODO CLIENTE --- */}
+            <Button 
+                onClick={irParaModoCliente} 
+                variant="ghost" 
+                size="sm" 
+                className="rounded-xl gap-2 shadow-lg hover:shadow-primary/25 transition-all"
+            >
+                <ShoppingBag className="w-4 h-4" /> Modo Cliente
             </Button>
-            <Button onClick={editarPerfil} variant="hero" size="sm" className="rounded-xl gap-2 shadow-lg hover:shadow-primary/25 transition-all">
+
+            <Button onClick={editarPerfil} size="sm" variant="ghost"  className="rounded-xl gap-2 shadow-lg hover:shadow-primary/25 transition-all">
               <Settings className="w-4 h-4" /> Editar Perfil
+            </Button>
+            
+            <Button variant="outline" size="sm" className="rounded-xl gap-2 shadow-lg hover:shadow-primary/25 transition-all" onClick={handleLogout}>
+              <LogOut className="w-4 h-4" /> Sair
             </Button>
           </div>
         </div>
@@ -94,7 +142,7 @@ export default function ProviderDashboard() {
               </span>
             </div>
             <h3 className="text-3xl font-bold mt-4 text-foreground">
-              {user.provider?.rating || "5.0"}
+              {user.provider?.rating ? user.provider.rating.toFixed(1) : "5.0"}
             </h3>
             <p className="text-sm text-muted-foreground">Avaliação Média</p>
           </div>
@@ -134,7 +182,7 @@ export default function ProviderDashboard() {
               <Calendar className="w-5 h-5 text-primary" /> Próximos Serviços
             </h2>
 
-            {/* Lista Vazia (Placeholder) ou Itens */}
+            {/* Lista Vazia (Placeholder) */}
             <div className="bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-8 text-center shadow-sm">
               <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                 <Briefcase className="w-8 h-8 text-muted-foreground/50" />
@@ -161,11 +209,11 @@ export default function ProviderDashboard() {
               <div className="relative mt-8 flex flex-col items-center text-center">
                 {/* Avatar */}
                 <div className="w-24 h-24 rounded-full border-4 border-card bg-muted flex items-center justify-center overflow-hidden shadow-md mb-4">
-                   {user.avatarUrl ? (
-                     <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
-                   ) : (
-                     <span className="text-3xl font-bold text-muted-foreground">{user.name.charAt(0)}</span>
-                   )}
+                    {user.avatarUrl ? (
+                      <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-3xl font-bold text-muted-foreground">{user.name.charAt(0)}</span>
+                    )}
                 </div>
 
                 <h3 className="font-bold text-lg">{user.name}</h3>

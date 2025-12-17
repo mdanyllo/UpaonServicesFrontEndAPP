@@ -1,9 +1,9 @@
-import Header from "@/components/layout/Header";
+import Fora from "@/components/layout/headerFora";
 
 export function TermosDeUso() {
 return (
 <>
-<Header />
+<Fora />
 <section className="min-h-screen bg-gradient-sunset pt-28 px-4">
 <div className="container mx-auto max-w-4xl bg-card/90 backdrop-blur-sm border border-border rounded-2xl p-8 shadow-large">
 <h1 className="font-display font-bold text-3xl mb-10">TERMOS DE USO — UPAON SERVICES</h1>

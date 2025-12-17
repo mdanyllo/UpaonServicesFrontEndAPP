@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate, Link } from "react-router-dom";
@@ -7,6 +7,23 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  
+      useEffect(() => {
+        const storedUser = localStorage.getItem("upaon_user")
+        const storedToken = localStorage.getItem("upaon_token")
+    
+        if (storedUser && storedToken) {
+          const user = JSON.parse(storedUser)
+          
+          // Redireciona imediatamente baseado no tipo de usuário
+          if (user.role === "PROVIDER") {
+            navigate("/dashboard/prestador", { replace: true })
+          } else {
+            navigate("/dashboard/cliente", { replace: true })
+          }
+        }
+      }, [navigate])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -19,10 +36,9 @@ export function LoginPage() {
       password: formData.get("password") as string,
     };
 
-
     try {
       const res = await fetch(
-        "https://upaonservicesbackprototipo.onrender.com/auth/login",
+        "http://localhost:3333/auth/login",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

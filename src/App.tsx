@@ -15,6 +15,8 @@ import { TermosDeUso } from "./pages/suporte/termosdeuso";
 import { PoliticaDePrivacidade } from "./pages/suporte/politicadeprivacidade";
 import ProviderDashboard from "./pages/dashboard/prestador";
 import { EditProfile } from "./pages/dashboard/editarperfil";
+import { ClienteDashboard } from "./pages/dashboard/cliente";
+import { VerifyAccount } from "./pages/verifyAccount";
 
 const queryClient = new QueryClient();
 
@@ -31,9 +33,11 @@ const App = () => (
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/cadastro/prestador" element={<Prestador />} />
           <Route path="/cadastro/cliente" element={<Cliente />} />
+          <Route path="/verificar-conta" element={<VerifyAccount />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="/dashboard/prestador" element={< ProviderDashboard/>} />
           <Route path="/dashboard/editarperfil" element={<EditProfile />} />
+          <Route path="/dashboard/cliente" element={<ClienteDashboard />} />
           <Route path="/resultados"element={<ResultadosPesquisa />}/>
           <Route path="/suporte/centraldeajuda" element={<CentralDeAjuda />} />
           <Route path="/suporte/termosdeuso" element={<TermosDeUso/>} />

@@ -9,15 +9,17 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-sunset">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">404</h1>
-        <p className="mb-4 text-xl text-muted-foreground">Oops! Essa página não existe :(</p>
-        <a href="/" className="text-primary underline hover:text-primary/90">
-          Voltar ao menu principal
-        </a>
+    <>
+      <div className="flex min-h-screen items-center justify-center bg-gradient-sunset">
+        <div className="text-center">
+          <h1 className="mb-4 text-4xl font-bold">404</h1>
+          <p className="mb-4 text-xl text-muted-foreground">Oops! Essa página não existe :(</p>
+          <a href="/" className="text-primary underline hover:text-primary/90">
+            Voltar ao menu principal
+          </a>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
