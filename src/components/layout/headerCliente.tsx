@@ -3,10 +3,15 @@ import { Link, useNavigate } from "react-router-dom"
 import { LogOut, User,} from "lucide-react"
 import { Button } from "@/components/ui/button"
 
+type Usuario = {
+    name: string
+    avatarUrl?: string
+}
+
 const Bar = () => {
   const navigate = useNavigate()
   const [user, setUser] = useState<any>(null)
-
+  const [usuario, setUsuario] = useState<Usuario[]>([])
   // Função para formatar o nome (Igual ao Hero)
   function formatName(name: string) {
     if (!name) return ""
@@ -60,7 +65,7 @@ const Bar = () => {
               </span>
               
               {/* Foto (Avatar) */}
-              <div className="w-9 h-9 rounded-full bg-muted overflow-hidden border border-border">
+              <div className="w-9 h-9 rounded-full bg-muted overflow-hidden border border-border flex items-center justify-center">
                 {user.avatarUrl ? (
                   <img 
                     src={user.avatarUrl} 
@@ -68,9 +73,12 @@ const Bar = () => {
                     className="w-full h-full object-cover" 
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <User className="w-5 h-5 text-muted-foreground" />
-                  </div>
+                  // SE NÃO TIVER FOTO: Gera o avatar com as iniciais do user.name
+                  <img 
+                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`} 
+                    alt={user.name} 
+                    className="w-full h-full object-cover" 
+                  />
                 )}
               </div>
 

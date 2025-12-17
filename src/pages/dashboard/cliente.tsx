@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { 
-  Search, MapPin, Star, User, Heart, Clock, 
+  Search, MapPin, User, Heart, Clock, 
   LogOut, Wrench, Zap, Paintbrush, Hammer,
   LayoutDashboard // <--- Ícone para o botão de voltar
 } from "lucide-react"

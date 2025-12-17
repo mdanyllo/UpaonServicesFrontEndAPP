@@ -15,7 +15,7 @@ type Provider = {
     id: string
     name: string
     phone?: string
-    avatarUrl?: string | null // <--- ADICIONEI ISSO AQUI NA TIPAGEM
+    avatarUrl?: string | null
   }
 }
 
@@ -57,47 +57,62 @@ export function ResultadosPesquisa() {
     loadProviders()
   }, [category, q])
 
-   const CATEGORIES = [
-  "Tecnologia",
-  "Reparos",
-  "Limpeza",
-  "Pintura",
-  "Construção",
-  "Beleza",
-  "Babá",
-  "Cuidadores",
-  "Culinária",
-  "Mudança",
-  "Fotografia",
-  "Motoristas",
-  "Outros",
-]
+  const CATEGORIES = [
+    "Tecnologia",
+    "Reparos",
+    "Limpeza",
+    "Pintura",
+    "Construção",
+    "Beleza",
+    "Babá",
+    "Cuidadores",
+    "Culinária",
+    "Mudança",
+    "Fotografia",
+    "Motoristas",
+    "Outros",
+  ]
 
   function handleSearch(value?: string) {
-  const query = (value ?? searchText).trim()
-  if (!query) return
+    const query = (value ?? searchText).trim()
+    if (!query) return
 
-  const params = new URLSearchParams()
+    const params = new URLSearchParams()
 
-  // verifica se o texto é uma categoria
-  const matchedCategory = CATEGORIES.find(
-    (cat) => cat.toLowerCase() === query.toLowerCase()
-  )
+    // verifica se o texto é uma categoria
+    const matchedCategory = CATEGORIES.find(
+      (cat) => cat.toLowerCase() === query.toLowerCase()
+    )
 
-  if (matchedCategory) {
-    params.append("category", matchedCategory)
-  } else {
-    params.append("q", query)
+    if (matchedCategory) {
+      params.append("category", matchedCategory)
+    } else {
+      params.append("q", query)
+    }
+
+    navigate(`/resultados?${params.toString()}`)
   }
 
-  navigate(`/resultados?${params.toString()}`)
-}
+  // --- NOVA LÓGICA DO BOTÃO ---
+  function handleViewProfile(providerId: string) {
+    // Verifica se o usuário tem o token de autenticação salvo
+    // (Certifique-se que no seu Login você está salvando como "token")
+    const token = localStorage.getItem("token")
 
+    if (!token) {
+      // Se NÃO tiver logado, manda pro cadastro
+      navigate("/cadastro")
+    } else {
+      // Se TIVER logado, manda pro perfil do prestador
+      // (Ajuste a rota abaixo conforme suas rotas reais)
+      navigate(`/perfil-prestador/${providerId}`)
+    }
+  }
 
   return (
     <>
       <Fora />
-      
+
       <section className="min-h-screen bg-gradient-sunset pt-28 px-4">
         <div className="container mx-auto max-w-6xl">
 
@@ -155,7 +170,6 @@ export function ResultadosPesquisa() {
           )}
 
           {/* Grid */}
-          {/* Corrigi a estrutura do grid aqui, tirei a div extra que quebrava o layout */}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {providers.map((provider) => (
               <div
@@ -163,15 +177,15 @@ export function ResultadosPesquisa() {
                 className="bg-card/90 backdrop-blur-sm border border-border rounded-2xl shadow-large p-6 flex flex-col justify-between hover:scale-[1.02] transition-transform"
               >
                 <div>
-                  {/* --- MUDANÇA AQUI: CABEÇALHO DO CARD COM FOTO --- */}
+                  {/* --- CABEÇALHO DO CARD COM FOTO --- */}
                   <div className="flex items-start gap-4 mb-4">
-                    
+
                     {/* Container da Foto */}
                     <div className="relative w-14 h-14 rounded-full overflow-hidden bg-muted flex-shrink-0 border border-border/50 shadow-sm">
                       {provider.user.avatarUrl ? (
-                        <img 
-                          src={provider.user.avatarUrl} 
-                          alt={provider.user.name} 
+                        <img
+                          src={provider.user.avatarUrl}
+                          alt={provider.user.name}
                           className="w-full h-full object-cover"
                         />
                       ) : (
@@ -200,30 +214,22 @@ export function ResultadosPesquisa() {
                   )}
                 </div>
 
-                  {/* Cidade com Ícone */}
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground mt-4">
-                    <MapPin className="w-3 h-3" />
-                    <span className="truncate max-w-[150px]">{provider.city}</span>
-                  </div>
+                {/* Cidade com Ícone */}
+                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-4">
+                  <MapPin className="w-3 h-3" />
+                  <span className="truncate max-w-[150px]">{provider.city}</span>
+                </div>
 
                 <div className="mt-6 flex items-center justify-between pt-4 border-t border-border/50">
-                  {/* Mais pra frente */} {/* 
-                  <div className="flex items-center gap-1 text-sm text-foreground font-medium">
-                    <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                    {provider.rating.toFixed(1)}
-                  </div>*/}
-                  
-                  {provider.user.phone && (
-                    <Button
-                      variant="hero"
-                      size="sm"
-                      onClick={() => window.open(`tel:${provider.user.phone}`)}
-                      className="rounded-xl"
-                    >
-                      <Phone className="w-4 h-4 mr-2" />
-                      Contato
-                    </Button>
-                  )}
+                  {/* Botão Ver Perfil com Lógica de Auth */}
+                  <Button
+                    variant="hero"
+                    size="sm"
+                    className="rounded-xl w-full"
+                    onClick={() => handleViewProfile(provider.id)}
+                  >
+                    Ver perfil
+                  </Button>
                 </div>
               </div>
             ))}

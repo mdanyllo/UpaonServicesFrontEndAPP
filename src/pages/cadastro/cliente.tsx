@@ -106,7 +106,7 @@ export function Cliente() {
 
           <Input
             name="phone"
-            placeholder="Telefone (opcional)"
+            placeholder="WhatsApp (ex: 98900000000)"
             className="rounded-xl"
           />
 

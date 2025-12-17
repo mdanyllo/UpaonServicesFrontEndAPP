@@ -124,7 +124,9 @@ export function Prestador() {
 
         <div className="space-y-4">
           <Input name="name" placeholder="Nome completo" required className="rounded-xl" />
+
           <Input name="email" type="email" placeholder="Email" required className="rounded-xl" />
+          
           <Input name="phone" placeholder="WhatsApp (ex: 98900000000)" className="rounded-xl" />
 
           <select

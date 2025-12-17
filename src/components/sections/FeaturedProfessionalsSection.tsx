@@ -1,4 +1,4 @@
-import { Star, MapPin, CheckCircle2 } from "lucide-react"
+import { MapPin, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
@@ -8,7 +8,7 @@ type Professional = {
   category: string
   description?: string
   rating?: number
-  city?: string // 👈 preparado pro backend
+  city?: string 
   user: {
     name: string
     avatarUrl?: string
@@ -49,8 +49,8 @@ const FeaturedProfessionalsSection = () => {
     loadFeatured()
   }, [])
 
-    function irLogin() {
-    navigate("login")
+    function irCadastro() {
+    navigate("/cadastro")
   } 
 
   return (
@@ -146,7 +146,7 @@ const FeaturedProfessionalsSection = () => {
                           /serviço
                         </span>
                       </div>
-                      <Button onClick={irLogin} variant="default" size="sm">
+                      <Button onClick={irCadastro} variant="default" size="sm">
                         Contratar
                       </Button>
                     </div>

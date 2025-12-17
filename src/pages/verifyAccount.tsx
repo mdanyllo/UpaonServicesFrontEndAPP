@@ -34,15 +34,38 @@ export function VerifyAccount() {
 
       if (!res.ok) throw new Error(data.error || "Erro ao verificar")
 
+      // --- LÓGICA DE AUTO-LOGIN ---
+      if (data.token) {
+        localStorage.setItem("token", data.token)
+        // Opcional: Salvar dados do user se quiser usar no header
+        localStorage.setItem("user", JSON.stringify(data.user))
+      }
+      // ----------------------------
+
       setSuccess(true)
       
-      // Espera 2 segundos e manda pro login
-      setTimeout(() => navigate("/login"), 2000)
+      // Espera 1.5 segundos (pra ver o check verde) e redireciona baseado no cargo
+      setTimeout(() => {
+        if (data.user?.role === "PROVIDER") {
+            // Se for prestador, manda pro perfil dele ou painel
+            navigate(`/perfil-prestador/${data.user.id}`) 
+        } else {
+            // Se for cliente, manda pra busca (Home)
+            navigate("/") 
+        }
+      }, 1500)
 
     } catch (err: any) {
       setError(err.message)
     } finally {
       setLoading(false)
+    }
+  }
+
+  // Função para capturar o Enter
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && code.length === 6 && !loading) {
+      handleVerify()
     }
   }
 
@@ -56,7 +79,7 @@ export function VerifyAccount() {
               <CheckCircle className="w-10 h-10" />
             </div>
             <h2 className="text-2xl font-bold text-foreground">Conta Verificada!</h2>
-            <p className="text-muted-foreground">Redirecionando para o login...</p>
+            <p className="text-muted-foreground">Entrando no sistema...</p>
           </div>
         ) : (
           <>
@@ -71,9 +94,11 @@ export function VerifyAccount() {
               <Input 
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                onKeyDown={handleKeyDown} // <--- AQUI ESTÁ O ENTER
                 placeholder="000000"
                 className="text-center text-3xl tracking-[10px] font-bold h-16 rounded-2xl border-2 focus-visible:ring-primary"
                 maxLength={6}
+                autoFocus // Foca direto no input ao abrir a tela
               />
               
               {error && (
