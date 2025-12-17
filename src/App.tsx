@@ -34,7 +34,7 @@ const App = () => (
           <Route path="/cadastro/prestador" element={<Prestador />} />
           <Route path="/cadastro/cliente" element={<Cliente />} />
           <Route path="/verificar-conta" element={<VerifyAccount />} />
-          <Route path="login" element={<LoginPage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/dashboard/prestador" element={< ProviderDashboard/>} />
           <Route path="/dashboard/editarperfil" element={<EditProfile />} />
           <Route path="/dashboard/cliente" element={<ClienteDashboard />} />

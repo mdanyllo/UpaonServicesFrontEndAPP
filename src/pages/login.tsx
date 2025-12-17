@@ -8,6 +8,31 @@ export function LoginPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // --- LÓGICA DE REDIRECIONAMENTO AUTOMÁTICO (GUARD) ---
+  useEffect(() => {
+    // 1. Tenta pegar os dados salvos
+    const token = localStorage.getItem("upaon_token")
+    const userStorage = localStorage.getItem("upaon_user")
+
+    // 2. Se tiver token e usuário, não deixa ficar na tela de login
+    if (token && userStorage) {
+      try {
+        const user = JSON.parse(userStorage)
+        
+        console.log("Usuário já logado, redirecionando...", user.role)
+
+        if (user.role === "PROVIDER") {
+          navigate("/dashboard/prestador", { replace: true })
+        } else {
+          // Client ou qualquer outro cai aqui
+          navigate("/dashboard/cliente", { replace: true }) 
+        }
+      } catch (e) {
+        // Se o JSON estiver quebrado, limpa tudo pra ele logar de novo
+        localStorage.clear()
+      }
+    }
+  }, [navigate])
   
       useEffect(() => {
         const storedUser = localStorage.getItem("upaon_user")

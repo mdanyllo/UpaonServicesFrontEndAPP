@@ -36,9 +36,9 @@ export function VerifyAccount() {
 
       // --- LÓGICA DE AUTO-LOGIN ---
       if (data.token) {
-        localStorage.setItem("token", data.token)
+        localStorage.setItem("upaon_token", data.token)
         // Opcional: Salvar dados do user se quiser usar no header
-        localStorage.setItem("user", JSON.stringify(data.user))
+        localStorage.setItem("upaon_user", JSON.stringify(data.user))
       }
       // ----------------------------
 
@@ -48,10 +48,10 @@ export function VerifyAccount() {
       setTimeout(() => {
         if (data.user?.role === "PROVIDER") {
             // Se for prestador, manda pro perfil dele ou painel
-            navigate(`/perfil-prestador/${data.user.id}`) 
+            navigate("/dashboard/prestador") 
         } else {
             // Se for cliente, manda pra busca (Home)
-            navigate("/") 
+            navigate("/dashboard/cliente") 
         }
       }, 1500)
 
