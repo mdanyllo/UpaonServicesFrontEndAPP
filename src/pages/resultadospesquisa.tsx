@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import Fora from "@/components/layout/headerFora"
 import Bar from "@/components/layout/headerCliente"
 
+// 1. ATUALIZEI A TIPAGEM PARA INCLUIR O BAIRRO
 type Provider = {
   id: string
   category: string
@@ -17,7 +18,19 @@ type Provider = {
     phone?: string
     avatarUrl?: string | null
     city: string
+    neighborhood?: string // <--- Adicionado aqui
   }
+}
+
+// 2. FUNÇÃO PARA FORMATAR TEXTO (Capitalize)
+// Transforma "centro" ou "CENTRO" em "Centro"
+function formatText(text?: string) {
+  if (!text) return ""
+  return text
+    .toLowerCase()
+    .split(" ")
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
 }
 
 export function ResultadosPesquisa() {
@@ -81,7 +94,6 @@ export function ResultadosPesquisa() {
 
     const params = new URLSearchParams()
 
-    // verifica se o texto é uma categoria
     const matchedCategory = CATEGORIES.find(
       (cat) => cat.toLowerCase() === query.toLowerCase()
     )
@@ -95,24 +107,19 @@ export function ResultadosPesquisa() {
     navigate(`/resultados?${params.toString()}`)
   }
 
-function handleViewProfile(providerId: string) {
+  function handleViewProfile(providerId: string) {
     const token = localStorage.getItem("upaon_token")
 
     if (!token) {
-      // 1. SALVA A INTENÇÃO: "O usuário queria ver o prestador X"
       localStorage.setItem("redirect_after_login", `/prestador/${providerId}`)
-      
-      // 2. Manda para o Login (ou Cadastro)
       navigate("/cadastro") 
     } else {
-      // Se já está logado, vai direto
       navigate(`/prestador/${providerId}`)
     }
   }
 
   useEffect(() => {
-    // Verifica se existem os dados chaves no LocalStorage
-    const token = localStorage.getItem("token")
+    const token = localStorage.getItem("upaon_token")
     const user = localStorage.getItem("upaon_user")
 
     if (token && user) {
@@ -124,12 +131,7 @@ function handleViewProfile(providerId: string) {
 
   return (
     <>
-      {/* 3. RENDERIZAÇÃO CONDICIONAL */}
-      {isLoggedIn ? (
-        <Bar /> 
-      ) : (
-        <Fora  />
-      )}
+      {isLoggedIn ? <Bar /> : <Fora />}
 
       <section className="min-h-screen bg-gradient-sunset pt-28 px-4">
         <div className="container mx-auto max-w-6xl">
@@ -231,14 +233,18 @@ function handleViewProfile(providerId: string) {
                   )}
                 </div>
 
-                {/* Cidade com Ícone */}
+                {/* 3. ATUALIZEI A EXIBIÇÃO DA LOCALIZAÇÃO */}
                 <div className="flex items-center gap-1 text-xs text-muted-foreground mt-4">
-                  <MapPin className="w-3 h-3" />
-                  <span className="truncate max-w-[150px]">{provider.user.city}</span>
+                  <MapPin className="w-3 h-3 flex-shrink-0" />
+                  <span className="truncate max-w-[220px]">
+                    {provider.user.neighborhood 
+                      ? `${formatText(provider.user.neighborhood)} - ${formatText(provider.user.city)}` 
+                      : formatText(provider.user.city)
+                    }
+                  </span>
                 </div>
 
                 <div className="mt-6 flex items-center justify-between pt-4 border-t border-border/50">
-                  {/* Botão Ver Perfil com Lógica de Auth */}
                   <Button
                     variant="hero"
                     size="sm"

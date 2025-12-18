@@ -25,6 +25,8 @@ export function PrestadorDetalhes() {
       return
     }
 
+    setUser(JSON.parse(storedUser))
+
     async function fetchProvider() {
       try {
         // Buscando da lista geral (mesma lógica de antes)

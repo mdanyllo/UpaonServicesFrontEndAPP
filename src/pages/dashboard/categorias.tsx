@@ -31,7 +31,7 @@ export function Categorias() {
   // --- 1. BLOQUEADOR DE USUÁRIO NÃO LOGADO ---
   useEffect(() => {
     const storedUser = localStorage.getItem("upaon_user")
-    const token = localStorage.getItem("token") // Verifica token também por segurança
+    const token = localStorage.getItem("upaon_token") // Verifica token também por segurança
 
     if (!storedUser || !token) {
       // Se não tiver usuário ou token, manda pro login

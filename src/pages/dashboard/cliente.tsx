@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { 
-  Search, MapPin, MapPinOff, User, Heart, Clock, 
+  Search, MapPin, MapPinOff, User, Clock, 
   LogOut, Wrench, Zap, Paintbrush, Hammer,
   LayoutDashboard 
 } from "lucide-react"
@@ -53,12 +53,12 @@ const KEYWORD_MAP: Record<string, string> = {
 type Provider = {
   id: string
   category: string
-  
   rating: number
   user: {
     name: string
     avatarUrl?: string | null
     city: string
+    neighborhood?: string 
   }
 }
 
@@ -67,8 +67,10 @@ export function ClienteDashboard() {
   const [user, setUser] = useState<any>(null)
   const [nearbyProviders, setNearbyProviders] = useState<Provider[]>([])
   const [searchText, setSearchText] = useState("")
+  
+  const [historyCount, setHistoryCount] = useState(0)
 
-  function formatText(text: string) {
+  function formatText(text?: string) {
     if (!text) return ""
     return text
       .toLowerCase()
@@ -83,7 +85,14 @@ export function ClienteDashboard() {
       navigate("/login")
       return
     }
-    setUser(JSON.parse(storedUser))
+    const parsedUser = JSON.parse(storedUser)
+    setUser(parsedUser)
+
+    fetch(`https://upaonservicesbackprototipo.onrender.com/users/${parsedUser.id}/history`)
+      .then(res => res.json())
+      .then(data => setHistoryCount(data.count || 0))
+      .catch(err => console.error("Erro ao buscar histórico", err))
+
   }, [navigate])
 
   useEffect(() => {
@@ -163,10 +172,10 @@ export function ClienteDashboard() {
       )}
 
       <main className="min-h-screen bg-gradient-sunset pt-20 md:pt-24 pb-6 px-4">
-        <div className="container mx-auto max-w-6xl space-y-8 md:space-y-12">
+        {/* AJUSTE AQUI: Reduzi o space-y-8 para space-y-6 para aproximar os blocos no geral */}
+        <div className="container mx-auto max-w-6xl space-y-6 md:space-y-10">
 
           <section className="text-center space-y-4 md:space-y-6 animate-fade-in">
-            
             <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 md:px-4 md:py-1.5 rounded-full bg-card/50 border border-white/10 text-foreground text-xs md:text-sm font-medium backdrop-blur-md shadow-sm">
               <MapPin className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" />
               {userCity}
@@ -194,53 +203,52 @@ export function ClienteDashboard() {
             </div>
           </section>
 
-          <p className="text-xs text-center md:text-base text-muted-foreground animate-fade-in delay-100">Categorias recomendadas</p>
-          <section className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 max-w-4xl mx-auto animate-fade-in delay-100">
-            {QUICK_CATEGORIES.map((cat) => (
-              <button
-                key={cat.name}
-                onClick={() => navigate(`/resultados?category=${cat.name}`)}
-                className="group bg-card/80 backdrop-blur-sm hover:bg-white border border-border hover:border-primary/30 p-4 md:p-6 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-center gap-2 md:gap-3"
-              >
-                <div className={`p-2.5 md:p-3 rounded-full ${cat.bg} group-hover:scale-110 transition-transform`}>
-                  <cat.icon className={`w-5 h-5 md:w-6 md:h-6 ${cat.color}`} />
-                </div>
-                <span className="font-medium text-sm md:text-base text-foreground">{cat.name}</span>
-              </button>
-            ))}
-          </section>
-          <div className="flex items-center justify-end max-w-5xl mx-auto w-full mb-4 md:mb-6 px-1">
-          <Button variant="link" size="sm" onClick={() => navigate("/categorias")}>Ver todas</Button>
+          {/* --- BLOCO DE CATEGORIAS --- */}
+          <div>
+             {/* AJUSTE AQUI: mb-2 deixa o texto colado nas categorias. Removi animate-fade-in duplicado */}
+            <div className="flex items-center justify-between max-w-5xl mx-auto mb-2 px-1 animate-fade-in delay-100">
+                <p className="text-xs text-center md:text-base text-muted-foreground">Categorias recomendadas</p>
+                <Button variant="link" size="sm" className="h-auto p-0" onClick={() => navigate("/categorias")}>Ver todas categorias</Button>
+            </div>
+            
+            <section className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 max-w-5xl mx-auto animate-fade-in delay-100">
+                {QUICK_CATEGORIES.map((cat) => (
+                <button
+                    key={cat.name}
+                    onClick={() => navigate(`/resultados?category=${cat.name}`)}
+                    className="group bg-card/80 backdrop-blur-sm hover:bg-white border border-border hover:border-primary/30 p-4 md:p-6 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-center gap-2 md:gap-3"
+                >
+                    <div className={`p-2.5 md:p-3 rounded-full ${cat.bg} group-hover:scale-110 transition-transform`}>
+                    <cat.icon className={`w-5 h-5 md:w-6 md:h-6 ${cat.color}`} />
+                    </div>
+                    <span className="font-medium text-sm md:text-base text-foreground">{cat.name}</span>
+                </button>
+                ))}
+            </section>
           </div>
 
-          <section className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 max-w-2xl mx-auto animate-fade-in delay-200">
-            <div className="bg-card/50 border border-white/10 rounded-2xl p-4 md:p-6 flex items-center justify-between hover:bg-card/80 transition-colors cursor-pointer group">
-              <div className="flex items-center gap-3 md:gap-4">
-                <div className="bg-pink-500/10 p-2.5 md:p-3 rounded-xl group-hover:bg-pink-500/20 transition-colors">
-                  <Heart className="w-5 h-5 md:w-6 md:h-6 text-pink-500" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold text-foreground text-sm md:text-base">Favoritos</h3>
-                  <p className="text-xs md:text-sm text-muted-foreground">Profissionais salvos</p>
-                </div>
-              </div>
-              <div className="bg-muted px-2 py-1 rounded text-xs font-bold text-muted-foreground">0</div>
-            </div>
-
-            <div className="bg-card/50 border border-white/10 rounded-2xl p-4 md:p-6 flex items-center justify-between hover:bg-card/80 transition-colors cursor-pointer group">
+          {/* HISTÓRICO */}
+          <section className="max-w-xl mx-auto animate-fade-in delay-200 !mt-10 md:!mt-16">
+            <div 
+              onClick={() => navigate("/historico")} 
+              className="bg-card/50 border border-white/10 rounded-2xl p-4 md:p-6 flex items-center justify-between hover:bg-card/80 transition-colors cursor-pointer group h-24"
+            >
               <div className="flex items-center gap-3 md:gap-4">
                 <div className="bg-blue-500/10 p-2.5 md:p-3 rounded-xl group-hover:bg-blue-500/20 transition-colors">
                   <Clock className="w-5 h-5 md:w-6 md:h-6 text-blue-500" />
                 </div>
-                <div className="text-left">
-                  <h3 className="font-semibold text-foreground text-sm md:text-base">Histórico</h3>
-                  <p className="text-xs md:text-sm text-muted-foreground">Serviços recentes</p>
+                <div className="text-left flex flex-col justify-center">
+                  <h3 className="font-semibold text-foreground text-sm md:text-base leading-none mb-1">Histórico</h3>
+                  <p className="text-xs md:text-sm text-muted-foreground leading-none">Serviços consultados</p>
                 </div>
               </div>
-              <div className="bg-muted px-2 py-1 rounded text-xs font-bold text-muted-foreground">0</div>
+              <div className="bg-muted px-3 py-1.5 rounded-lg text-sm font-bold text-muted-foreground">
+                 {historyCount}
+              </div>
             </div>
           </section>
 
+          {/* PRÓXIMOS DE VOCÊ */}
           <section className="animate-fade-in delay-300 max-w-5xl mx-auto w-full">
             <div className="flex items-center justify-between mb-4 md:mb-6 px-1">
               <div className="flex items-center gap-2">
@@ -274,7 +282,13 @@ export function ClienteDashboard() {
                       </p>
                       
                       <div className="flex items-center gap-1 text-xs text-muted-foreground truncate">
-                          <MapPin className="w-3 h-3 flex-shrink-0" /> {provider.user.city}
+                          <MapPin className="w-3 h-3 flex-shrink-0" /> 
+                          <span className="truncate">
+                            {provider.user.neighborhood 
+                              ? `${formatText(provider.user.neighborhood)} - ${formatText(provider.user.city)}` 
+                              : formatText(provider.user.city)
+                            }
+                          </span>
                       </div>
                     </div>
                   </div>

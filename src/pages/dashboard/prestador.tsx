@@ -3,26 +3,35 @@ import { useNavigate } from "react-router-dom"
 import { 
   User, 
   Star, 
-  Briefcase, 
-  Calendar, 
   LogOut, 
   MapPin, 
   Settings,
-  Clock,
   Loader2,
   ShoppingBag,
   MessageCircle, 
-  Eye
+  Eye,
+  Calendar
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-// Se você tiver um Header/Navbar para o prestador, lembre de importar aqui, ex:
-// import Bar from "@/components/layout/headerCliente" 
+
+// Função auxiliar para formatar data
+function formatDate(dateString: string) {
+  const date = new Date(dateString)
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date)
+}
 
 export default function ProviderDashboard() {
   const navigate = useNavigate()
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [stats, setStats] = useState({ contacts: 0 }) 
+  
+  // AGORA O STATS GUARDA A LISTA DE LOGS TAMBÉM
+  const [stats, setStats] = useState<{ contacts: number, logs: any[] }>({ contacts: 0, logs: [] }) 
 
   useEffect(() => {
     const storedUser = localStorage.getItem("upaon_user")
@@ -48,7 +57,13 @@ export default function ProviderDashboard() {
       if (parsedUser.provider?.id) {
         fetch(`https://upaonservicesbackprototipo.onrender.com/providers/${parsedUser.provider.id}/stats`)
           .then(res => res.json())
-          .then(data => setStats(data))
+          .then(data => {
+            // Garante que logs seja sempre um array, mesmo se vier null
+            setStats({
+                contacts: data.contacts || 0,
+                logs: data.logs || []
+            })
+          })
           .catch(err => console.error("Erro ao buscar stats", err))
       }
 
@@ -83,7 +98,6 @@ export default function ProviderDashboard() {
   }
 
   return (
-    // AJUSTE AQUI: Reduzi de pt-24 para pt-14 no mobile e pt-20 no PC
     <section className="relative min-h-screen pt-14 md:pt-18 pb-12 bg-gradient-sunset overflow-hidden">
       
       {/* --- BG ANIMADO --- */}
@@ -95,7 +109,6 @@ export default function ProviderDashboard() {
     <div className="container flex flex-col mx-auto px-4 relative z-10">
         
         {/* --- HEADER DO DASHBOARD --- */}
-        {/* AJUSTE AQUI: Reduzi mb-10 para mb-6 para subir o conteúdo */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 animate-fade-in">
           <div className="md:ml-5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-2 border border-primary/20">
@@ -195,15 +208,57 @@ export default function ProviderDashboard() {
               <MessageCircle className="w-5 ml-5 h-5 text-primary" /> Histórico de Contatos
             </h2>
 
-            <div className="bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-8 text-center shadow-sm">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <MessageCircle className="w-8 h-8 text-muted-foreground/50" />
-              </div>
-              <h3 className="text-lg font-medium text-foreground">Acompanhe seus contatos</h3>
-              <p className="text-muted-foreground text-sm max-w-xs mx-auto mt-2">
-                Aqui você verá detalhes de quem clicou no seu WhatsApp. Mantenha seu perfil atualizado e o seu número de WhatsApp correto para receber mais clientes.
-              </p>
-            </div>
+            {/* AQUI ESTÁ A LÓGICA DE EXIBIÇÃO DA LISTA */}
+            {stats.logs && stats.logs.length > 0 ? (
+                
+                // 1. ADICIONE ESSAS CLASSES NO CONTAINER PAI:
+                // max-h-[400px] -> Altura máxima fixa
+                // overflow-y-auto -> Cria barra de rolagem se passar da altura
+                // pr-2 -> Um pouco de espaço na direita pra barra não colar no texto
+                <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                    
+                    {stats.logs.map((log: any) => (
+                        <div key={log.id} className="bg-card/40 backdrop-blur-sm border border-white/5 p-4 rounded-xl flex items-center gap-4 hover:bg-card/60 transition-colors">
+                            {/* Avatar do Cliente */}
+                            <div className="w-10 h-10 rounded-full bg-muted border border-white/10 overflow-hidden flex-shrink-0">
+                                {log.client.avatarUrl ? (
+                                    <img src={log.client.avatarUrl} alt={log.client.name} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center bg-primary/20 text-primary text-xs font-bold">
+                                        {log.client.name.charAt(0)}
+                                    </div>
+                                )}
+                            </div>
+                            
+                            {/* Dados do Cliente */}
+                            <div className="flex-1">
+                                <h4 className="text-sm font-bold text-foreground">{log.client.name}</h4>
+                                <p className="text-xs text-muted-foreground">Clicou no botão de contato</p>
+                            </div>
+
+                            {/* Data do Clique */}
+                            <div className="text-right">
+                                <span className="text-xs text-muted-foreground/70 flex items-center gap-1">
+                                    <Calendar className="w-3 h-3" />
+                                    {formatDate(log.createdAt)}
+                                </span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                // --- CASO NÃO TENHA DADOS: MOSTRA O PLACEHOLDER ANTIGO ---
+                <div className="bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-8 text-center shadow-sm">
+                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                        <MessageCircle className="w-8 h-8 text-muted-foreground/50" />
+                    </div>
+                    <h3 className="text-lg font-medium text-foreground">Acompanhe seus contatos</h3>
+                    <p className="text-muted-foreground text-sm max-w-xs mx-auto mt-2">
+                        Aqui você verá detalhes de quem clicou no seu WhatsApp. Mantenha seu perfil atualizado e o seu número correto para receber mais clientes.
+                    </p>
+                </div>
+            )}
+
           </div>
 
           {/* Coluna Direita: Perfil Rápido */}
