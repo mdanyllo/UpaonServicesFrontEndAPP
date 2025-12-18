@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
-import { ArrowLeft, Camera, Save, User, Briefcase, Mail, Loader2 } from "lucide-react"
+import { ArrowLeft, Camera, Save, User, Briefcase, Mail, Loader2, Phone } from "lucide-react" // <--- Adicionei Phone
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input" // Se você usar input simples, pode manter, mas aqui usaremos textarea e select manuais
+import { Input } from "@/components/ui/input" 
 
 const CATEGORIES = [
   "Tecnologia", "Reparos", "Limpeza", "Pintura", "Construção",
@@ -17,22 +17,21 @@ export function EditProfile() {
   // Estados de Carregamento e Dados
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [isSaving, setIsSaving] = useState(false) // Mudei o nome pra ficar mais claro
+  const [isSaving, setIsSaving] = useState(false)
   
   // Estados do Formulário
   const [description, setDescription] = useState("")
   const [category, setCategory] = useState("")
+  const [phone, setPhone] = useState("") // <--- NOVO ESTADO
   
   // Estados da Imagem
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
-  // --- 1. EFEITO ÚNICO E PODEROSO (Segurança + Carregamento) ---
   useEffect(() => {
     const storedUser = localStorage.getItem("upaon_user")
     const storedToken = localStorage.getItem("upaon_token")
 
-    // 1.1 Checa Login Básico
     if (!storedUser || !storedToken) {
       navigate("/login")
       return
@@ -41,22 +40,20 @@ export function EditProfile() {
     try {
       const parsedUser = JSON.parse(storedUser)
 
-      // 1.2 Checa se é Prestador
       if (parsedUser.role !== "PROVIDER") {
-        console.warn("Acesso negado: Apenas prestadores podem editar perfil de serviço.")
+        console.warn("Acesso negado")
         navigate("/dashboard/cliente", { replace: true })
         return
       }
 
-      // 1.3 Se passou em tudo, preenche os estados
       setUser(parsedUser)
       
-      // Preenche campos do formulário (com fallback para string vazia)
+      // Preenche campos
       setDescription(parsedUser.provider?.description || "")
       setCategory(parsedUser.provider?.category || "")
+      setPhone(parsedUser.phone || "") // <--- PREENCHE O TELEFONE
       setPreviewUrl(parsedUser.avatarUrl || null)
       
-      // Libera o loading
       setIsLoading(false)
 
     } catch (error) {
@@ -66,7 +63,6 @@ export function EditProfile() {
     }
   }, [navigate])
   
-  // 2. Lógica de Preview da Imagem
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (file) {
@@ -76,7 +72,6 @@ export function EditProfile() {
     }
   }
 
-  // 3. Enviar para o Backend
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setIsSaving(true)
@@ -87,6 +82,7 @@ export function EditProfile() {
 
       formData.append("description", description)
       formData.append("category", category)
+      formData.append("phone", phone) // <--- ENVIA O TELEFONE NOVO
       
       if (selectedFile) {
         formData.append("avatar", selectedFile)
@@ -104,11 +100,9 @@ export function EditProfile() {
 
       const updatedUser = await res.json()
       
-      // Atualiza o localStorage e o estado local
       localStorage.setItem("upaon_user", JSON.stringify(updatedUser))
-      setUser(updatedUser) // Atualiza visualmente se a pessoa não sair da tela
+      setUser(updatedUser)
       
-      // Redireciona com feedback visual (opcional, aqui vai direto)
       navigate("/dashboard/prestador")
 
     } catch (error) {
@@ -119,8 +113,6 @@ export function EditProfile() {
     }
   }
 
-  // --- TELA DE LOADING ---
-  // (Importante vir antes de qualquer outro return)
   if (isLoading) {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-sunset">
@@ -131,7 +123,6 @@ export function EditProfile() {
     )
   }
 
-  // Se passou do loading e user ainda é null (caso raro de erro), não mostra nada
   if (!user) return null
 
   return (
@@ -151,7 +142,7 @@ export function EditProfile() {
           <Button 
             variant="ghost" 
             size="icon" 
-            onClick={() => navigate("/dashboard/prestador")} // Melhor forçar ir pro dashboard do que -1 (histórico)
+            onClick={() => navigate("/dashboard/prestador")} 
             className="rounded-full hover:bg-white/10"
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
@@ -164,7 +155,6 @@ export function EditProfile() {
           {/* --- SEÇÃO DA FOTO --- */}
           <div className="flex flex-col items-center">
             <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-              {/* Círculo da Imagem */}
               <div className="w-32 h-32 rounded-full border-4 border-card bg-muted flex items-center justify-center overflow-hidden shadow-lg transition-transform group-hover:scale-105">
                 {previewUrl ? (
                   <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
@@ -172,14 +162,11 @@ export function EditProfile() {
                   <User className="w-12 h-12 text-muted-foreground/50" />
                 )}
               </div>
-              
-              {/* Botão Flutuante da Câmera */}
               <div className="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full shadow-md hover:bg-primary/90 transition-colors">
                 <Camera className="w-5 h-5" />
               </div>
             </div>
             <p className="mt-3 text-sm text-muted-foreground font-medium">Toque para alterar a foto</p>
-            
             <input 
               type="file" 
               ref={fileInputRef} 
@@ -191,7 +178,7 @@ export function EditProfile() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
-            {/* --- CAMPOS READ-ONLY (Não editáveis) --- */}
+            {/* --- CAMPOS READ-ONLY --- */}
             <div className="space-y-2 opacity-70">
               <label className="text-sm font-medium text-muted-foreground ml-1">Nome Completo</label>
               <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-muted/50 border border-border">
@@ -209,6 +196,27 @@ export function EditProfile() {
             </div>
 
             {/* --- CAMPOS EDITÁVEIS --- */}
+            
+            {/* TELEFONE / WHATSAPP (NOVO) */}
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-sm font-medium text-foreground ml-1">WhatsApp / Telefone</label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Ex: 98988887777"
+                  className="pl-10 rounded-xl bg-card/50"
+                  required
+                />
+              </div>
+              <p className="text-xs text-muted-foreground ml-1">
+                 Este número será usado pelos clientes para te chamar no WhatsApp.
+              </p>
+            </div>
+
+            {/* CATEGORIA */}
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium text-foreground ml-1">Categoria de Serviço</label>
               <div className="relative">
@@ -226,6 +234,7 @@ export function EditProfile() {
               </div>
             </div>
 
+            {/* DESCRIÇÃO */}
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium text-foreground ml-1">Sobre você e seu trabalho</label>
               <textarea

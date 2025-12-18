@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 
 export function Cadastro() {
   const navigate = useNavigate()
@@ -50,6 +50,14 @@ function handleChoose(path: "/cadastro/cliente" | "/cadastro/prestador") {
               Sou Prestador
             </button>
           </div>
+        </div>
+        <div className="flex justify-center">
+          <p className="text-sm text-muted-foreground text-center mt-4">
+            Já tem uma conta?{" "}
+            <Link className="text-primary font-medium hover:underline" to="/login">
+              Login
+            </Link>
+          </p>
         </div>
       </div>
     </div>

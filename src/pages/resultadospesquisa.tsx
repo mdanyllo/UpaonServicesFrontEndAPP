@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react"
 import { useSearchParams, useNavigate } from "react-router-dom"
-import { Phone, Star, User, Search, MapPin } from "lucide-react"
+import { Star, User, Search, MapPin } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import Fora from "@/components/layout/headerFora"
+import Bar from "@/components/layout/headerCliente"
 
 type Provider = {
   id: string
   category: string
-  city: string
   description?: string
   rating: number
   user: {
@@ -16,6 +16,7 @@ type Provider = {
     name: string
     phone?: string
     avatarUrl?: string | null
+    city: string
   }
 }
 
@@ -24,6 +25,7 @@ export function ResultadosPesquisa() {
   const [loading, setLoading] = useState(true)
   const [searchParams] = useSearchParams()
   const [searchText, setSearchText] = useState("")
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   const navigate = useNavigate()
 
@@ -93,25 +95,41 @@ export function ResultadosPesquisa() {
     navigate(`/resultados?${params.toString()}`)
   }
 
-  // --- NOVA LÓGICA DO BOTÃO ---
-  function handleViewProfile(providerId: string) {
-    // Verifica se o usuário tem o token de autenticação salvo
-    // (Certifique-se que no seu Login você está salvando como "token")
-    const token = localStorage.getItem("token")
+function handleViewProfile(providerId: string) {
+    const token = localStorage.getItem("upaon_token")
 
     if (!token) {
-      // Se NÃO tiver logado, manda pro cadastro
-      navigate("/cadastro")
+      // 1. SALVA A INTENÇÃO: "O usuário queria ver o prestador X"
+      localStorage.setItem("redirect_after_login", `/prestador/${providerId}`)
+      
+      // 2. Manda para o Login (ou Cadastro)
+      navigate("/cadastro") 
     } else {
-      // Se TIVER logado, manda pro perfil do prestador
-      // (Ajuste a rota abaixo conforme suas rotas reais)
-      navigate(`/perfil-prestador/${providerId}`)
+      // Se já está logado, vai direto
+      navigate(`/prestador/${providerId}`)
     }
   }
 
+  useEffect(() => {
+    // Verifica se existem os dados chaves no LocalStorage
+    const token = localStorage.getItem("token")
+    const user = localStorage.getItem("upaon_user")
+
+    if (token && user) {
+      setIsLoggedIn(true)
+    } else {
+      setIsLoggedIn(false)
+    }
+  }, [])
+
   return (
     <>
-      <Fora />
+      {/* 3. RENDERIZAÇÃO CONDICIONAL */}
+      {isLoggedIn ? (
+        <Bar /> 
+      ) : (
+        <Fora  />
+      )}
 
       <section className="min-h-screen bg-gradient-sunset pt-28 px-4">
         <div className="container mx-auto max-w-6xl">
@@ -189,7 +207,6 @@ export function ResultadosPesquisa() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        // Fallback se não tiver foto
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                           <User className="w-7 h-7" />
                         </div>
@@ -206,7 +223,7 @@ export function ResultadosPesquisa() {
                       </p>
                     </div>
                   </div>
-                  {/* ------------------------------------------------ */}
+                  
                   {provider.description && (
                     <p className="text-sm text-muted-foreground line-clamp-3">
                       {provider.description}
@@ -217,7 +234,7 @@ export function ResultadosPesquisa() {
                 {/* Cidade com Ícone */}
                 <div className="flex items-center gap-1 text-xs text-muted-foreground mt-4">
                   <MapPin className="w-3 h-3" />
-                  <span className="truncate max-w-[150px]">{provider.city}</span>
+                  <span className="truncate max-w-[150px]">{provider.user.city}</span>
                 </div>
 
                 <div className="mt-6 flex items-center justify-between pt-4 border-t border-border/50">

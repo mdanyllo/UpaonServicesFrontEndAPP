@@ -17,6 +17,8 @@ import ProviderDashboard from "./pages/dashboard/prestador";
 import { EditProfile } from "./pages/dashboard/editarperfil";
 import { ClienteDashboard } from "./pages/dashboard/cliente";
 import { VerifyAccount } from "./pages/verifyAccount";
+import { Categorias } from "./pages/dashboard/categorias";
+import { PrestadorDetalhes } from "./pages/perfilPrestador";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +40,8 @@ const App = () => (
           <Route path="/dashboard/prestador" element={< ProviderDashboard/>} />
           <Route path="/dashboard/editarperfil" element={<EditProfile />} />
           <Route path="/dashboard/cliente" element={<ClienteDashboard />} />
+          <Route path="/prestador/:id" element={<PrestadorDetalhes />} />
+          <Route path="/categorias" element={<Categorias />} />
           <Route path="/resultados"element={<ResultadosPesquisa />}/>
           <Route path="/suporte/centraldeajuda" element={<CentralDeAjuda />} />
           <Route path="/suporte/termosdeuso" element={<TermosDeUso/>} />

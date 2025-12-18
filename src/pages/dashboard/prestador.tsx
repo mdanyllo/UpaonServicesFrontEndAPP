@@ -10,7 +10,9 @@ import {
   Settings,
   Clock,
   Loader2,
-  ShoppingBag // <--- Ícone para o botão de compras
+  ShoppingBag,
+  MessageCircle, // Ícone do Zap
+  Eye
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -18,6 +20,7 @@ export default function ProviderDashboard() {
   const navigate = useNavigate()
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [stats, setStats] = useState({ contacts: 0 }) // Estado para os cliques
 
   useEffect(() => {
     // 1. Pega os dados
@@ -43,6 +46,14 @@ export default function ProviderDashboard() {
       // 4. Tudo certo? Salva o user e libera o carregamento
       setUser(parsedUser)
       setIsLoading(false)
+
+      // --- BUSCA OS CLIQUES (CONTACT LOGS) ---
+      if (parsedUser.provider?.id) {
+        fetch(`https://upaonservicesbackprototipo.onrender.com/providers/${parsedUser.provider.id}/stats`)
+          .then(res => res.json())
+          .then(data => setStats(data))
+          .catch(err => console.error("Erro ao buscar stats", err))
+      }
 
     } catch (error) {
       // Se der erro no JSON, limpa tudo e manda pro login
@@ -90,7 +101,7 @@ export default function ProviderDashboard() {
         
         {/* --- HEADER DO DASHBOARD --- */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 animate-fade-in">
-          <div>
+          <div className="md:ml-5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-2 border border-primary/20">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -147,53 +158,58 @@ export default function ProviderDashboard() {
             <p className="text-sm text-muted-foreground">Avaliação Média</p>
           </div>
 
-          {/* Card 2: Serviços Realizados */}
+          {/* Card 2: CLIQUES NO WHATSAPP (Substituindo Serviços Realizados) */}
           <div className="bg-card/60 backdrop-blur-md border border-white/10 p-6 rounded-2xl shadow-large hover:bg-card/80 transition-colors group">
             <div className="flex justify-between items-start">
-              <div className="p-3 bg-blue-500/10 rounded-xl text-blue-500 group-hover:scale-110 transition-transform">
-                <Briefcase className="w-6 h-6" />
+              <div className="p-3 bg-green-500/10 rounded-xl text-green-500 group-hover:scale-110 transition-transform">
+                <MessageCircle className="w-6 h-6" />
               </div>
+              <span className="text-xs font-medium bg-green-500/10 text-green-500 px-2 py-1 rounded-full">
+                Interessados
+              </span>
             </div>
-            <h3 className="text-3xl font-bold mt-4 text-foreground">12</h3>
-            <p className="text-sm text-muted-foreground">Serviços este mês</p>
+            
+            {/* VALOR DINÂMICO VINDO DO BACKEND */}
+            <h3 className="text-3xl font-bold mt-4 text-foreground">
+              {stats.contacts}
+            </h3>
+            
+            <p className="text-sm text-muted-foreground">Cliques no WhatsApp</p>
           </div>
 
-          {/* Card 3: Status */}
+          {/* Card 3: Visualizações (Mockup por enquanto ou Status) */}
           <div className="bg-card/60 backdrop-blur-md border border-white/10 p-6 rounded-2xl shadow-large hover:bg-card/80 transition-colors group">
             <div className="flex justify-between items-start">
               <div className="p-3 bg-purple-500/10 rounded-xl text-purple-500 group-hover:scale-110 transition-transform">
-                <Clock className="w-6 h-6" />
+                <Eye className="w-6 h-6" />
               </div>
               <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-1 rounded-full">
                 Ativo
               </span>
             </div>
             <h3 className="text-xl font-bold mt-4 text-foreground">Disponível</h3>
-            <p className="text-sm text-muted-foreground">Seu perfil está visível</p>
+            <p className="text-sm text-muted-foreground">Perfil visível na busca</p>
           </div>
         </div>
 
-        {/* --- ÁREA PRINCIPAL: MEUS PEDIDOS --- */}
+        {/* --- ÁREA PRINCIPAL --- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in order-1 lg:order-2 mb-10 lg:mb-0" style={{ animationDelay: "200ms" }}>
           
-          {/* Coluna Esquerda: Próximos Serviços */}
+          {/* Coluna Esquerda: Lista de Interessados (Pode ser uma futura lista de quem clicou) */}
           <div className="lg:col-span-2 space-y-6 order-2 lg:order-1">
             <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-primary" /> Próximos Serviços
+              <MessageCircle className="w-5 ml-5 h-5 text-primary" /> Histórico de Contatos
             </h2>
 
             {/* Lista Vazia (Placeholder) */}
             <div className="bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-8 text-center shadow-sm">
               <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <Briefcase className="w-8 h-8 text-muted-foreground/50" />
+                <MessageCircle className="w-8 h-8 text-muted-foreground/50" />
               </div>
-              <h3 className="text-lg font-medium text-foreground">Nenhum serviço agendado</h3>
+              <h3 className="text-lg font-medium text-foreground">Acompanhe seus contatos</h3>
               <p className="text-muted-foreground text-sm max-w-xs mx-auto mt-2">
-                Assim que um cliente entrar em contato, os pedidos aparecerão aqui.
+                Aqui você verá detalhes de quem clicou no seu WhatsApp. Mantenha seu perfil atualizado e o seu número de WhatsApp correto para receber mais clientes.
               </p>
-              <Button variant="outline" className="mt-6 rounded-xl border-dashed">
-                Atualizar Lista
-              </Button>
             </div>
           </div>
 

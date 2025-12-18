@@ -14,11 +14,11 @@ const HeroSection = () => {
   const navigate = useNavigate()
 
   const cities = [
-    { name: "São Luís-MA", time: 8000 },
-    { name: "Paço do Lumiar-MA", time: 4000 },
-    { name: "São José de Ribamar-MA", time: 4000 },
-    { name: "Raposa-MA", time: 4000 },
-    { name: "Ilha do Amor", time: 6000 },
+    { name: "São Luís-MA", time: 3000 },
+    { name: "Paço do Lumiar-MA", time: 3000 },
+    { name: "São José de Ribamar-MA", time: 3000 },
+    { name: "Raposa-MA", time: 3000 },
+    { name: "Ilha do Amor", time: 4000 },
   ]
 
   const [index, setIndex] = useState(0)
@@ -136,7 +136,7 @@ const HeroSection = () => {
   // -------------------------------------
 
   return (
-    <section className="relative min-h-[90vh] flex items-center pt-20 overflow-hidden bg-gradient-sunset">
+    <section className="relative md:min-h-[85vh] flex items-center pt-20 overflow-hidden bg-gradient-sunset">
       {/* BG */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse-soft" />
@@ -196,8 +196,8 @@ const HeroSection = () => {
               Buscas recomendadas:
             </p>
 
-            <div className="flex flex-wrap justify-center gap-2 animate-fade-in">
-              {["Eletricista", "Diarista", "Encanador", "Pintor", "Cuidador"].map(
+            <div className="flex justify-center gap-2 animate-fade-in">
+              {["Eletricista", "Diarista", "Babá", "Encanador"].map(
                 (service) => (
                   <button
                     key={service}

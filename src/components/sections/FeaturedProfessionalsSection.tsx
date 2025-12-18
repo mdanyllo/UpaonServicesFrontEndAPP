@@ -8,10 +8,11 @@ type Professional = {
   category: string
   description?: string
   rating?: number
-  city?: string 
+   
   user: {
     name: string
     avatarUrl?: string
+    city?: string
   }
 }
 
@@ -49,9 +50,20 @@ const FeaturedProfessionalsSection = () => {
     loadFeatured()
   }, [])
 
-    function irCadastro() {
-    navigate("/cadastro")
-  } 
+function handleViewProfile(providerId: string) {
+    const token = localStorage.getItem("upaon_token")
+
+    if (!token) {
+      // 1. SALVA A INTENÇÃO: "O usuário queria ver o prestador X"
+      localStorage.setItem("redirect_after_login", `/prestador/${providerId}`)
+      
+      // 2. Manda para o Login (ou Cadastro)
+      navigate("/cadastro") 
+    } else {
+      // Se já está logado, vai direto
+      navigate(`/prestador/${providerId}`)
+    }
+  }
 
   return (
     <section id="profissionais" className="py-20 bg-background">
@@ -88,7 +100,7 @@ const FeaturedProfessionalsSection = () => {
               const rating =
                 typeof pro.rating === "number" ? pro.rating : 5.0
 
-              const city = pro.city || DEFAULT_CITY
+              const city = pro.user.city || DEFAULT_CITY
 
               return (
                 <div
@@ -146,7 +158,7 @@ const FeaturedProfessionalsSection = () => {
                           /serviço
                         </span>
                       </div>
-                      <Button onClick={irCadastro} variant="default" size="sm">
+                      <Button onClick={() => handleViewProfile(pro.id)} variant="default" size="sm">
                         Contratar
                       </Button>
                     </div>

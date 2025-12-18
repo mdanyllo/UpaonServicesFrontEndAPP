@@ -73,18 +73,30 @@ export function LoginPage() {
 
       const data: any = await res.json()
 
-      if (!res.ok) {
+if (!res.ok) {
         throw new Error(data.message || "Erro ao fazer login");
       }
 
-      localStorage.setItem("upaon_token", data.token)
+      // Salva os dados
+      localStorage.setItem("upaon_token", data.token) // ATENÇÃO AQUI (leia nota abaixo)
       localStorage.setItem("upaon_user", JSON.stringify(data.user))
 
-      if (data.user.role === "PROVIDER") {
-        navigate("/dashboard/prestador")
+      // Recupera o bilhete
+      const redirectUrl = localStorage.getItem("redirect_after_login")
+
+      if (redirectUrl) {
+        // Se tiver bilhete:
+        localStorage.removeItem("redirect_after_login") // Limpa
+        navigate(redirectUrl)
       } else {
-        navigate("/dashboard/cliente")
+        // Se não tiver bilhete, fluxo normal:
+        if (data.user.role === "PROVIDER") {
+          navigate("/dashboard/prestador")
+        } else {
+          navigate("/dashboard/cliente")
+        }
       }
+
     } catch (err: any) {
       setError(err.message);
     } finally {

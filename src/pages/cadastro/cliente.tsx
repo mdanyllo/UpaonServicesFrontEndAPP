@@ -3,6 +3,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useNavigate } from "react-router-dom"
 
+const cities = [
+  "São Luís - MA",
+  "São José de Ribamar - MA",
+  "Paço do Lumiar - MA",
+  "Raposa - MA",
+]
+
 export function Cliente() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -22,8 +29,6 @@ export function Cliente() {
     const password = formData.get("password") as string
     const email = formData.get("email") as string
 
-    // 2. Verifica Senha Forte (NOVA LÓGICA)
-    // Regra: 8 caracteres, 1 maiúscula, 1 minúscula, 1 número, 1 símbolo
     const senhaForteRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/
 
     if (!senhaForteRegex.test(password)) {
@@ -39,12 +44,14 @@ export function Cliente() {
       email: email,
       password: password,
       phone: formData.get("phone") as string,
+      city: formData.get("city") as string,  
+      neighborhood: formData.get("neighborhood") as string,
       role: "CLIENT",
     }
 
     try {
       const res = await fetch(
-        "https://upaonservicesbackprototipo.onrender.com/auth/register", // Mantive sua URL local
+        "https://upaonservicesbackprototipo.onrender.com/auth/register",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -57,7 +64,6 @@ export function Cliente() {
         throw new Error(err.message || "Erro ao criar conta")
       }
 
-      // 3. SUCESSO: Redireciona para a verificação com o email na URL
       navigate(`/verificar-conta?email=${email}`)
 
     } catch (err: any) {
@@ -107,6 +113,25 @@ export function Cliente() {
           <Input
             name="phone"
             placeholder="WhatsApp (ex: 98900000000)"
+            className="rounded-xl"
+          />
+
+          <select
+            name="city"
+            className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
+            required
+          >
+            <option value="">Selecione sua cidade</option>
+            {cities.map((city) => (
+              <option key={city} value={city}>
+                {city}
+              </option>
+            ))}
+          </select>
+
+          <Input
+            name="neighborhood"
+            placeholder="Bairro (ex: Cohama, Calhau)"
             className="rounded-xl"
           />
 

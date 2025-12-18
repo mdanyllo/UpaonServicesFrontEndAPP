@@ -3,15 +3,9 @@ import { Link, useNavigate } from "react-router-dom"
 import { LogOut, User,} from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-type Usuario = {
-    name: string
-    avatarUrl?: string
-}
-
 const Bar = () => {
   const navigate = useNavigate()
   const [user, setUser] = useState<any>(null)
-  const [usuario, setUsuario] = useState<Usuario[]>([])
   // Função para formatar o nome (Igual ao Hero)
   function formatName(name: string) {
     if (!name) return ""
@@ -30,6 +24,7 @@ const Bar = () => {
   }, [])
 
   function handleLogout() {
+    localStorage.removeItem("user_token")
     localStorage.removeItem("upaon_token")
     localStorage.removeItem("upaon_user")
     navigate("/")
