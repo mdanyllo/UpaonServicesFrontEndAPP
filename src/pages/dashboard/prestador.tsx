@@ -11,23 +11,23 @@ import {
   Clock,
   Loader2,
   ShoppingBag,
-  MessageCircle, // Ícone do Zap
+  MessageCircle, 
   Eye
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+// Se você tiver um Header/Navbar para o prestador, lembre de importar aqui, ex:
+// import Bar from "@/components/layout/headerCliente" 
 
 export default function ProviderDashboard() {
   const navigate = useNavigate()
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [stats, setStats] = useState({ contacts: 0 }) // Estado para os cliques
+  const [stats, setStats] = useState({ contacts: 0 }) 
 
   useEffect(() => {
-    // 1. Pega os dados
     const storedUser = localStorage.getItem("upaon_user")
     const storedToken = localStorage.getItem("upaon_token")
 
-    // 2. Se não tiver dados, tchau -> Login
     if (!storedUser || !storedToken) {
       navigate("/login")
       return
@@ -36,18 +36,15 @@ export default function ProviderDashboard() {
     try {
       const parsedUser = JSON.parse(storedUser)
 
-      // 3. Se não for PRESTADOR -> Vai para Dashboard de Cliente
       if (parsedUser.role !== "PROVIDER") {
         console.warn("Acesso negado: Usuário não é prestador")
         navigate("/dashboard/cliente", { replace: true })
         return
       }
 
-      // 4. Tudo certo? Salva o user e libera o carregamento
       setUser(parsedUser)
       setIsLoading(false)
 
-      // --- BUSCA OS CLIQUES (CONTACT LOGS) ---
       if (parsedUser.provider?.id) {
         fetch(`https://upaonservicesbackprototipo.onrender.com/providers/${parsedUser.provider.id}/stats`)
           .then(res => res.json())
@@ -56,7 +53,6 @@ export default function ProviderDashboard() {
       }
 
     } catch (error) {
-      // Se der erro no JSON, limpa tudo e manda pro login
       localStorage.clear()
       navigate("/login")
     }
@@ -72,12 +68,10 @@ export default function ProviderDashboard() {
     navigate("/dashboard/editarperfil")
   } 
 
-  // --- FUNÇÃO PARA IR COMPRAR (MODO CLIENTE) ---
   function irParaModoCliente() {
     navigate("/dashboard/cliente")
   }
 
-  // --- TELA DE LOADING ---
   if (isLoading || !user) {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-sunset">
@@ -89,7 +83,8 @@ export default function ProviderDashboard() {
   }
 
   return (
-    <section className="relative min-h-screen pt-24 pb-12 bg-gradient-sunset overflow-hidden">
+    // AJUSTE AQUI: Reduzi de pt-24 para pt-14 no mobile e pt-20 no PC
+    <section className="relative min-h-screen pt-14 md:pt-18 pb-12 bg-gradient-sunset overflow-hidden">
       
       {/* --- BG ANIMADO --- */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -100,7 +95,8 @@ export default function ProviderDashboard() {
     <div className="container flex flex-col mx-auto px-4 relative z-10">
         
         {/* --- HEADER DO DASHBOARD --- */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 animate-fade-in">
+        {/* AJUSTE AQUI: Reduzi mb-10 para mb-6 para subir o conteúdo */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 animate-fade-in">
           <div className="md:ml-5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-2 border border-primary/20">
               <span className="relative flex h-2 w-2">
@@ -119,7 +115,6 @@ export default function ProviderDashboard() {
           </div>
 
           <div className="flex gap-3 flex-wrap">
-            {/* --- BOTÃO MODO CLIENTE --- */}
             <Button 
                 onClick={irParaModoCliente} 
                 variant="ghost" 
@@ -158,7 +153,7 @@ export default function ProviderDashboard() {
             <p className="text-sm text-muted-foreground">Avaliação Média</p>
           </div>
 
-          {/* Card 2: CLIQUES NO WHATSAPP (Substituindo Serviços Realizados) */}
+          {/* Card 2: CLIQUES NO WHATSAPP */}
           <div className="bg-card/60 backdrop-blur-md border border-white/10 p-6 rounded-2xl shadow-large hover:bg-card/80 transition-colors group">
             <div className="flex justify-between items-start">
               <div className="p-3 bg-green-500/10 rounded-xl text-green-500 group-hover:scale-110 transition-transform">
@@ -169,7 +164,6 @@ export default function ProviderDashboard() {
               </span>
             </div>
             
-            {/* VALOR DINÂMICO VINDO DO BACKEND */}
             <h3 className="text-3xl font-bold mt-4 text-foreground">
               {stats.contacts}
             </h3>
@@ -177,7 +171,7 @@ export default function ProviderDashboard() {
             <p className="text-sm text-muted-foreground">Cliques no WhatsApp</p>
           </div>
 
-          {/* Card 3: Visualizações (Mockup por enquanto ou Status) */}
+          {/* Card 3: Status */}
           <div className="bg-card/60 backdrop-blur-md border border-white/10 p-6 rounded-2xl shadow-large hover:bg-card/80 transition-colors group">
             <div className="flex justify-between items-start">
               <div className="p-3 bg-purple-500/10 rounded-xl text-purple-500 group-hover:scale-110 transition-transform">
@@ -195,13 +189,12 @@ export default function ProviderDashboard() {
         {/* --- ÁREA PRINCIPAL --- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in order-1 lg:order-2 mb-10 lg:mb-0" style={{ animationDelay: "200ms" }}>
           
-          {/* Coluna Esquerda: Lista de Interessados (Pode ser uma futura lista de quem clicou) */}
+          {/* Coluna Esquerda: Histórico */}
           <div className="lg:col-span-2 space-y-6 order-2 lg:order-1">
             <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
               <MessageCircle className="w-5 ml-5 h-5 text-primary" /> Histórico de Contatos
             </h2>
 
-            {/* Lista Vazia (Placeholder) */}
             <div className="bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-8 text-center shadow-sm">
               <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                 <MessageCircle className="w-8 h-8 text-muted-foreground/50" />
@@ -223,7 +216,6 @@ export default function ProviderDashboard() {
               <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-primary/20 to-purple-500/20" />
               
               <div className="relative mt-8 flex flex-col items-center text-center">
-                {/* Avatar */}
                 <div className="w-24 h-24 rounded-full border-4 border-card bg-muted flex items-center justify-center overflow-hidden shadow-md mb-4">
                     {user.avatarUrl ? (
                       <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />

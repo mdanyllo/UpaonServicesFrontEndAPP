@@ -187,3 +187,17 @@
     box-shadow: var(--shadow-glow);
   }
 }
+
+/* Aumenta o tamanho base de TUDO no site apenas em telas grandes (PC/Notebook) */
+@media (min-width: 1024px) {
+  html {
+    font-size: 112%; /* Isso equivale a um zoom de 120% */
+  }
+}
+
+/* Opcional: Se quiser um pouco maior no tablet também */
+@media (min-width: 768px) and (max-width: 1023px) {
+  html {
+    font-size: 110%;
+  }
+}

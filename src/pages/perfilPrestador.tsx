@@ -64,7 +64,7 @@ export function PrestadorDetalhes() {
     const finalPhone = cleanPhone.length <= 11 ? `55${cleanPhone}` : cleanPhone
 
     // Mensagem automática
-    const message = `Olá ${provider.user.name}, vi seu perfil na Upaon Services e gostaria de fazer um orçamento.`
+    const message = `Olá ${provider.user.name}, vi seu perfil na UpaonServices e gostaria de fazer um orçamento.`
     
     // Cria o link da API
     const url = `https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`
@@ -91,7 +91,7 @@ export function PrestadorDetalhes() {
         
         {/* HEADER DE VOLTAR */}
         <div className="max-w-4xl mx-auto mb-6">
-          <Button variant="ghost" onClick={() => navigate(-1)} className="text-white hover:bg-white/10 gap-2 pl-0">
+          <Button variant="ghost" onClick={() => navigate(-1)} className="text-zinc-800 hover:bg-white/20 gap-2 pl-0">
             <ArrowLeft className="w-5 h-5" /> Voltar
           </Button>
         </div>
