@@ -10,7 +10,6 @@ import { ReviewsSection } from "@/components/ReviewsSection"
 import { toast } from "sonner"
 import { API_URL } from "@/config/api"
 
-// 1. HELPER PARA FORMATAR TEXTO (Adicionado aqui)
 function formatText(text?: string) {
   if (!text) return ""
   return text
@@ -27,11 +26,8 @@ export function PrestadorDetalhes() {
   const [provider, setProvider] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
-
-  // ESTADO NOVO: Controla a tela de redirecionamento
   const [isRedirecting, setIsRedirecting] = useState(false)
 
-  // 1. Carrega Prestador
   useEffect(() => {
     const storedUser = localStorage.getItem("upaon_user")
     if (!storedUser) {
@@ -43,12 +39,28 @@ export function PrestadorDetalhes() {
 
     async function fetchProvider() {
       try {
-        const res = await fetch(`${API_URL}/providers`)
-        const data = await res.json()
-        const found = data.find((p: any) => p.id === id)
+        // CORREÇÃO 1: Adicionei limit=100 para tentar achar o prestador mesmo se ele não for o primeiro
+        const res = await fetch(`${API_URL}/providers?limit=100`) 
+        const responseData = await res.json()
+
+        // CORREÇÃO 2: Lógica robusta para extrair a lista (Array vs Objeto)
+        let list: any[] = []
+        
+        if (Array.isArray(responseData)) {
+            // Formato antigo (Array puro)
+            list = responseData
+        } else if (responseData && Array.isArray(responseData.data)) {
+            // Formato novo (Com paginação)
+            list = responseData.data
+        }
+
+        // Agora sim podemos usar o .find com segurança
+        const found = list.find((p: any) => p.id === id)
         setProvider(found)
+
       } catch (error) {
         console.error("Erro ao buscar prestador", error)
+        toast.error("Erro ao carregar detalhes do prestador.")
       } finally {
         setLoading(false)
       }
@@ -56,14 +68,12 @@ export function PrestadorDetalhes() {
     fetchProvider()
   }, [id, navigate])
 
-  // 2. Função do WhatsApp com DELAY e TELA DE AVISO
   function handleWhatsApp() {
     if (!provider || !provider.user.phone) {
       toast.error("Este prestador não cadastrou um telefone válido.")
       return
     }
 
-    // Salva a métrica de clique
     if (user && user.id) {
         fetch(`${API_URL}/providers/${provider.id}/contact`, {
             method: "POST",
@@ -72,19 +82,17 @@ export function PrestadorDetalhes() {
         }).catch(err => console.error("Erro ao salvar metrica", err))
     }
 
-    // Prepara o link
     const cleanPhone = provider.user.phone.replace(/\D/g, "")
     const finalPhone = cleanPhone.length <= 11 ? `55${cleanPhone}` : cleanPhone
     const message = `Olá ${provider.user.name}, vi seu perfil na UpaonServices e gostaria de fazer um orçamento.`
     const url = `https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`
 
-    // --- AQUI A MÁGICA ACONTECE ---
-    setIsRedirecting(true) // Mostra a tela de aviso
+    setIsRedirecting(true)
 
     setTimeout(() => {
-        window.open(url, "_blank") // Abre o WhatsApp
-        setIsRedirecting(false)    // Fecha a tela de aviso
-    }, 4000) // Espera 4 segundos (4000ms)
+        window.open(url, "_blank")
+        setIsRedirecting(false)    
+    }, 4000) 
   }
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-white bg-gradient-sunset">Carregando...</div>
@@ -102,11 +110,9 @@ export function PrestadorDetalhes() {
     <>
       <Bar />
       
-      {/* --- TELA DE REDIRECIONAMENTO (OVERLAY) --- */}
       {isRedirecting && (
         <div className="fixed inset-0 z-[9999] bg-gradient-sunset flex flex-col items-center justify-center text-center px-6 animate-in fade-in duration-300">
             
-            {/* Ícone Estrela */}
             <div className="bg-white/20 p-6 rounded-full mb-6 animate-bounce border border-white/30 backdrop-blur-sm shadow-xl">
                 <Star className="w-12 h-12 text-yellow-400 fill-yellow-400" />
             </div>
@@ -118,7 +124,6 @@ export function PrestadorDetalhes() {
                 Não esqueça de voltar aqui para avaliar {formatText(provider.user.name.split(" ").slice(0, 2).join(" "))}!
             </span>
 
-            {/* BARRA DE PROGRESSO LARANJA */}
             <div className="w-64 h-2 bg-black/20 rounded-full overflow-hidden backdrop-blur-sm border border-white/10">
                 <div className="h-full bg-gradient-to-r from-orange-400 to-orange-600 animate-[progress_4s_ease-in-out_forwards]" style={{ width: '0%' }} />
                 <style>{`
@@ -133,7 +138,6 @@ export function PrestadorDetalhes() {
         </div>
       )}
 
-      {/* --- CONTEÚDO NORMAL DA PÁGINA --- */}
       <div className="min-h-screen bg-gradient-sunset pt-24 pb-12 px-4">
         
         <div className="max-w-4xl mx-auto mb-6">
@@ -144,12 +148,10 @@ export function PrestadorDetalhes() {
 
         <div className="max-w-4xl mx-auto">
           
-          {/* CARTÃO PRINCIPAL */}
           <div className="bg-card/90 backdrop-blur-md border border-white/20 rounded-3xl p-6 md:p-10 shadow-xl relative overflow-hidden flex flex-col md:flex-row gap-8 items-center md:items-start text-center md:text-left">
             
             <div className="absolute top-0 left-0 w-full h-24 md:h-full md:w-32 bg-gradient-to-b md:bg-gradient-to-r from-primary/10 to-transparent" />
 
-            {/* AVATAR */}
             <div className="relative z-10 w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-card shadow-lg overflow-hidden bg-muted flex-shrink-0">
                 {provider.user.avatarUrl ? (
                   <img src={provider.user.avatarUrl} className="w-full h-full object-cover" alt={providerName} />
@@ -160,7 +162,6 @@ export function PrestadorDetalhes() {
                 )}
             </div>
 
-            {/* INFORMAÇÕES */}
             <div className="relative z-10 flex-1 space-y-4">
               <div>
                 <h1 className="text-3xl font-bold text-foreground mb-1">{formatText(providerName)}</h1>
@@ -169,19 +170,17 @@ export function PrestadorDetalhes() {
 
               <div className="flex flex-wrap justify-center md:justify-start gap-3">
                 <span className="bg-yellow-500/10 text-yellow-600 px-3 py-1.5 rounded-full text-sm font-bold flex items-center gap-1 border border-yellow-500/20">
-                  <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" /> {provider.rating.toFixed(1)}
+                  <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" /> {provider.rating ? provider.rating.toFixed(1) : "5.0"}
                 </span>
                 <span className="bg-muted px-3 py-1.5 rounded-full text-sm text-muted-foreground flex items-center gap-1 border border-border">
                   <MapPin className="w-3.5 h-3.5" /> {formatText(provider.user.city)}
                 </span>
               </div>
 
-              {/* DESCRIÇÃO */}
               <div className="bg-background/50 rounded-xl p-4 text-sm text-muted-foreground leading-relaxed border border-white/5">
                 {provider.description || "Este profissional oferece serviços especializados na categoria, mas ainda não adicionou uma descrição detalhada."}
               </div>
 
-              {/* BOTÃO WHATSAPP */}
               <div className="pt-2">
                 <Button 
                   size="lg" 
@@ -199,7 +198,6 @@ export function PrestadorDetalhes() {
             </div>
           </div>
 
-          {/* BENEFÍCIOS / SELOS */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
             <div className="bg-card/50 backdrop-blur-sm border border-white/10 p-4 rounded-2xl flex items-center gap-4">
               <div className="bg-green-500/10 p-3 rounded-full">
