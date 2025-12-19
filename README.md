@@ -1,73 +1,144 @@
-# Welcome to your Lovable project
+# Upaon Services — Documentação do FrontEnd
 
-## Project info
+## Visão Geral
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+A **Upaon Services** é uma plataforma de marketplace de serviços locais focada na Ilha de Upaon-Açu (São Luís, Paço do Lumiar, São José de Ribamar e Raposa).
 
-## How can I edit this code?
+O objetivo é conectar clientes a prestadores de serviços de forma simples, rápida e inteligente, utilizando busca por categoria e descrição.
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## Fluxo Principal da Aplicação
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+1. Usuário acessa a landing page (Hero)
+2. Realiza uma busca por serviço
+3. Visualiza prestadores disponíveis
+4. Cria conta ou faz login
+5. É redirecionado automaticamente para o dashboard conforme o tipo de usuário
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## Hero
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Verificação de Sessão
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Ao carregar a página inicial, o sistema verifica se existem dados salvos no `localStorage`:
 
-Follow these steps:
+- `upaon_user`
+- `upaon_token`
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Se o usuário estiver autenticado:
+- `PROVIDER` → redireciona para `/dashboard/prestador`
+- `CLIENT` → redireciona para `/dashboard/cliente`
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Exibição de Localização
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+O Hero exibe cidades da Ilha de Upaon-Açu de forma animada, apenas como elemento visual.
 
-**Edit a file directly in GitHub**
+Cidades exibidas:
+- São Luís - MA
+- Paço do Lumiar - MA
+- São José de Ribamar - MA
+- Raposa - MA
+- Ilha do Amor
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+> A localização exibida no Hero **não é utilizada como filtro de busca**.
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Sistema de Busca Inteligente
 
-## What technologies are used for this project?
+A busca do Hero redireciona o usuário para a página de resultados usando query params.
 
-This project is built with:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+---
 
-## How can I deploy this project?
+### Tipos de Busca
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+#### 1. Busca por Categoria Exata
 
-## Can I connect a custom domain to my Lovable project?
+Se o termo digitado corresponder exatamente a uma categoria existente:
 
-Yes, you can!
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+#### 2. Busca por Palavra-chave Mapeada
+
+O front-end converte termos populares em categorias internas do sistema.
+
+Exemplos:
+
+| Termo digitado | Categoria aplicada |
+|---------------|-------------------|
+| Eletricista   | Reparos           |
+| Encanador    | Reparos           |
+| Diarista     | Limpeza           |
+| Babá         | Babá              |
+| Pedreiro    | Construção        |
+| Pintor       | Pintura           |
+| Motorista    | Motoristas        |
+| Bolo         | Culinária         |
+| Computador   | Tecnologia        |
+
+---
+
+#### 3. Busca Textual Genérica
+
+Quando o termo não corresponde a nenhuma categoria nem palavra-chave mapeada.
+
+
+Essa busca verifica:
+- Nome do prestador
+- Descrição do prestador
+
+---
+
+## Categorias Disponíveis
+
+- Tecnologia
+- Reparos
+- Limpeza
+- Pintura
+- Construção
+- Beleza
+- Babá
+- Cuidadores
+- Culinária
+- Mudança
+- Fotografia
+- Motoristas
+- Outros
+
+---
+
+## Regras Importantes
+
+- A localização **não filtra resultados** 
+- Toda a lógica de busca inteligente ocorre no front-end
+- O back-end apenas recebe parâmetros simples (`category` ou `q`)
+- Lógicas internas, validações e erros não são expostos na documentação
+
+---
+
+## Escopo
+
+### Incluído
+- Busca inteligente por serviço
+- Cadastro e login
+- Redirecionamento automático por tipo de usuário
+- Listagem de prestadores
+
+### Fora do Escopo
+- Filtro por bairro
+- Paginação
+- Sistema de avaliação
+
+---
+
+## Observação Final
+
+Esta documentação descreve exclusivamente o comportamento atual da plataforma e serve como base para evolução futura.
+
+
