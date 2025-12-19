@@ -6,9 +6,9 @@ const CTASection = () => {
 
   const navigate = useNavigate()
   
-function handleChoose(path: "/cadastro/cliente" | "/cadastro/prestador") {
-  navigate(path)
-}
+  function handleChoose(path: "/cadastro/cliente" | "/cadastro/prestador") {
+    navigate(path)
+  }
 
   return (
     <section className="py-20 bg-gradient-hero relative overflow-hidden">
@@ -19,7 +19,9 @@ function handleChoose(path: "/cadastro/cliente" | "/cadastro/prestador") {
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="grid md:grid-cols-2 gap-8">
+        {/* MUDANÇA AQUI: Adicionado [zoom:0.85] para mobile e resetado no desktop */}
+        <div className="grid md:grid-cols-2 gap-8 [zoom:0.85] md:[zoom:1]">
+          
           {/* For Service Seekers */}
           <div className="bg-card/10 backdrop-blur-sm rounded-3xl p-8 md:p-10 border border-primary-foreground/20">
             <div className="w-14 h-14 bg-primary-foreground/20 rounded-2xl flex items-center justify-center mb-6">

@@ -142,6 +142,7 @@ if (!res.ok) {
             required
             className="rounded-xl"
           />
+          <Link className="text-xs ml-2" to="/recuperar-senha">Esqueceu a senha?</Link>
         </div>
 
         {error && (

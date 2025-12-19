@@ -1,4 +1,4 @@
-import { MapPin, CheckCircle2 } from "lucide-react"
+import { MapPin, CheckCircle2, Star } from "lucide-react" // <--- Adicionei Star aqui
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
@@ -76,11 +76,9 @@ const FeaturedProfessionalsSection = () => {
               Conheça os primeiros usuários da plataforma
             </p>
           </div>
-          {/* Botão Ver Todos REMOVIDO aqui */}
         </div>
 
         {/* Professionals Grid */}
-        {/* MUDANÇA AQUI: grid-cols-2 força dois cards no mobile. gap-3 diminui o espaço pra caber melhor */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
           {!loading &&
             professionals.map((pro, index) => {
@@ -91,7 +89,10 @@ const FeaturedProfessionalsSection = () => {
                   name
                 )}&background=random`
 
-              // const rating = typeof pro.rating === "number" ? pro.rating : 5.0
+              // --- RESTAUREI O RATING AQUI ---
+              const rating = typeof pro.rating === "number" ? pro.rating : 5.0
+              // -------------------------------
+
               const city = pro.user.city || DEFAULT_CITY
 
               return (
@@ -115,18 +116,26 @@ const FeaturedProfessionalsSection = () => {
                     </div>
                   </div>
 
-                  {/* Content - MUDANÇA: p-3 no mobile, p-5 no desktop */}
+                  {/* Content */}
                   <div className="p-3 md:p-5 flex flex-col flex-1 justify-between">
                     <div>
-                      <div className="flex items-start justify-between mb-1 md:mb-2">
-                        <div className="w-full">
-                          {/* Nome menor no mobile */}
+                      {/* Flex container para Nome e Rating lado a lado */}
+                      <div className="flex items-start justify-between mb-1 md:mb-2 gap-2">
+                        <div className="min-w-0"> {/* min-w-0 ajuda a truncar o texto corretamente */}
                           <h3 className="font-display font-semibold text-sm md:text-lg text-foreground truncate">
                             {name}
                           </h3>
                           <p className="text-xs md:text-sm text-muted-foreground truncate">
                             {pro.category}
                           </p>
+                        </div>
+                        
+                        {/* --- RATING VISUAL --- */}
+                        <div className="flex items-center gap-1 bg-yellow-500/10 px-1.5 py-0.5 md:px-2 md:py-1 rounded-md flex-shrink-0 border border-yellow-500/20">
+                            <Star className="w-3 h-3 md:w-3.5 md:h-3.5 fill-yellow-500 text-yellow-500" />
+                            <span className="text-xs md:text-sm font-bold text-yellow-600">
+                                {rating.toFixed(1)}
+                            </span>
                         </div>
                       </div>
 
@@ -141,7 +150,6 @@ const FeaturedProfessionalsSection = () => {
                         <span className="font-display font-bold text-sm md:text-lg text-foreground block md:inline">
                           Sob consulta
                         </span>
-                        {/* Escondi o /serviço no mobile pra limpar a tela */}
                         <span className="hidden md:inline text-sm text-muted-foreground">
                           {" "}/serviço
                         </span>

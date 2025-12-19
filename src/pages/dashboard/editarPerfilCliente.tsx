@@ -1,8 +1,16 @@
 import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
-import { ArrowLeft, Camera, Save, User, Mail, Loader2, Phone, MapPin } from "lucide-react"
+import { ArrowLeft, User, Loader2, Phone, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input" 
+import { toast } from "sonner"
+
+const CITIES = [
+  "São Luís - MA",
+  "São José de Ribamar - MA",
+  "Paço do Lumiar - MA",
+  "Raposa - MA"
+]
 
 export function EditProfileCliente() {
   const navigate = useNavigate()
@@ -79,10 +87,11 @@ export function EditProfileCliente() {
 
       const updatedUser = await res.json()
       localStorage.setItem("upaon_user", JSON.stringify(updatedUser))
+      toast.success("Perfil atualizado com sucesso!")
       navigate("/dashboard/cliente")
 
     } catch (error) {
-      alert("Erro ao salvar perfil.")
+      toast.error("Erro ao salvar perfil.")
     } finally {
       setIsSaving(false)
     }
@@ -111,19 +120,40 @@ export function EditProfileCliente() {
             <div className="space-y-4">
                 <div>
                     <label className="text-sm font-medium">Nome</label>
-                    <Input value={user.name} disabled className="bg-muted"/>
+                    <div className="relative">
+                        <User className="absolute left-3 top-2.5 w-5 h-5 text-muted-foreground" />
+                        <Input value={user.name} disabled className="pl-10 bg-muted"/>
+                    </div>
                 </div>
+
                 <div>
                     <label className="text-sm font-medium">Telefone / WhatsApp</label>
-                    <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="(98) 99999-9999"/>
+                    <div className="relative">
+                        <Phone className="absolute left-3 top-2.5 w-5 h-5 text-muted-foreground" />
+                        <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="(98) 99999-9999" className="pl-10"/>
+                    </div>
                 </div>
-                 <div>
-                    <label className="text-sm font-medium">Bairro</label>
-                    <Input value={neighborhood} onChange={e => setNeighborhood(e.target.value)} placeholder="Ex: Cohab"/>
-                </div>
+                 
                 <div>
                     <label className="text-sm font-medium">Cidade</label>
-                    <Input value={city} onChange={e => setCity(e.target.value)} />
+                    <div className="relative">
+                        <MapPin className="absolute left-3 top-2.5 w-5 h-5 text-muted-foreground pointer-events-none" />
+                        <select 
+                            value={city} 
+                            onChange={e => setCity(e.target.value)} 
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 pl-10 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        >
+                            {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                    </div>
+                </div>
+
+                 <div>
+                    <label className="text-sm font-medium">Bairro</label>
+                    <div className="relative">
+                         <MapPin className="absolute left-3 top-2.5 w-5 h-5 text-muted-foreground" />
+                        <Input value={neighborhood} onChange={e => setNeighborhood(e.target.value)} placeholder="Ex: Cohab" className="pl-10"/>
+                    </div>
                 </div>
             </div>
 

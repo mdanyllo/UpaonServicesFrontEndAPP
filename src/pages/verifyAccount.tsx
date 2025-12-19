@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom"
 import { Loader2, CheckCircle, AlertCircle, Timer } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { toast } from "sonner"
 
 export function VerifyAccount() {
   const navigate = useNavigate()
@@ -48,12 +49,12 @@ export function VerifyAccount() {
 
         if (!res.ok) throw new Error("Erro ao reenviar.")
 
-        // Sucesso: Reinicia o timer para 60 segundos
-        setTimeLeft(60)
-        alert("Novo código enviado! Verifique sua caixa de entrada.") // Depois mudaremos para Toast
+          // Sucesso: Reinicia o timer para 60 segundos
+          setTimeLeft(60)
+          toast.success("Novo código enviado! Verifique sua caixa de entrada.") // Depois mudaremos para Toast
 
     } catch (err) {
-        setError("Não foi possível reenviar o código.")
+        toast.error("Não foi possível reenviar o código.")
     } finally {
         setIsResending(false)
     }

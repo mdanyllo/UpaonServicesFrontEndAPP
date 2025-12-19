@@ -157,7 +157,7 @@ const HeroSection = () => {
           <h1 className="font-display font-bold text-4xl md:text-6xl text-foreground mb-6 animate-fade-in">
             Encontre os melhores{" "}
             <span className="text-gradient-hero">profissionais</span>{" "}
-            da ilha
+            da Ilha
           </h1>
 
           <p className="text-lg text-muted-foreground mb-10 animate-fade-in">

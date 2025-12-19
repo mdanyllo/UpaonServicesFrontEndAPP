@@ -13,6 +13,7 @@ import {
   Calendar
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 
 // Função auxiliar para formatar data
 function formatDate(dateString: string) {
@@ -82,14 +83,15 @@ export default function ProviderDashboard() {
     }
   }, [navigate])
 
-  function handleLogout() {
+function handleLogout() {
     localStorage.removeItem("upaon_token")
     localStorage.removeItem("upaon_user")
+    toast.success("Você saiu da conta.")
     navigate("/")
   }
 
   function editarPerfil() {
-    navigate("/dashboard/editarperfil")
+    navigate("/dashboard/prestador/perfil")
   } 
 
   function irParaModoCliente() {
@@ -301,7 +303,6 @@ export default function ProviderDashboard() {
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </section>

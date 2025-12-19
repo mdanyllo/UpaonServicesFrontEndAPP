@@ -22,6 +22,7 @@ import { VerifyAccount } from "./pages/verifyAccount";
 import { Categorias } from "./pages/dashboard/categorias";
 import { PrestadorDetalhes } from "./pages/perfilPrestador";
 import { Historico } from "./pages/Historico";
+import { RecoverPassword } from "./pages/RecoverPassword";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => (
           <Route path="/cadastro/cliente" element={<Cliente />} />
           <Route path="/verificar-conta" element={<VerifyAccount />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/recuperar-senha" element={<RecoverPassword />} />
           
           <Route path="/dashboard/prestador" element={<ProviderDashboard/>} />
           <Route path="/dashboard/prestador/perfil" element={<EditProfilePrestador />} />

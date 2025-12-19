@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom"
 import { 
   Search, MapPin, MapPinOff, User, Clock, 
   LogOut, Wrench, Zap, Paintbrush, Hammer,
-  LayoutDashboard 
+  LayoutDashboard, Star // <--- Importei Star aqui
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Bar from "@/components/layout/headerCliente"
+import { toast } from "sonner"
 
 const QUICK_CATEGORIES = [
   { name: "Tecnologia", icon: Zap, color: "text-yellow-500", bg: "bg-yellow-500/10" },
@@ -137,14 +138,7 @@ export function ClienteDashboard() {
 
     navigate(`/resultados?${params.toString()}`)
   }
-
-  function handleLogout() {
-    localStorage.removeItem("user_token")
-    localStorage.removeItem("upaon_token")
-    localStorage.removeItem("upaon_user")
-    navigate("/")
-  }
-
+  
   function voltarParaPrestador() {
     navigate("/dashboard/prestador")
   }
@@ -172,7 +166,7 @@ export function ClienteDashboard() {
       )}
 
       <main className="min-h-screen bg-gradient-sunset pt-20 md:pt-24 pb-6 px-4">
-        {/* AJUSTE AQUI: Reduzi o space-y-8 para space-y-6 para aproximar os blocos no geral */}
+        
         <div className="container mx-auto max-w-6xl space-y-12 md:space-y-10">
 
           <section className="text-center space-y-4 md:space-y-6 animate-fade-in">
@@ -205,7 +199,6 @@ export function ClienteDashboard() {
 
           {/* --- BLOCO DE CATEGORIAS --- */}
           <div>
-             {/* AJUSTE AQUI: mb-2 deixa o texto colado nas categorias. Removi animate-fade-in duplicado */}
             <div className="flex items-center justify-between max-w-5xl mx-auto md:mt-15 mb-2 px-1 animate-fade-in delay-100">
               <div className="flex items-center gap-2">
                 <LayoutDashboard className="w-4 h-4 md:w-5 md:h-5 text-primary" />
@@ -273,12 +266,27 @@ export function ClienteDashboard() {
                       {provider.user.avatarUrl ? (
                         <img src={provider.user.avatarUrl} className="w-full h-full object-cover" alt={provider.user.name} />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center"><User className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground"/></div>
+                        <div className="w-full h-full flex items-center justify-center">
+                          <img 
+                          src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`} 
+                          alt={user.name} 
+                          className="w-full h-full object-cover" 
+                        /></div>
                       )}
                     </div>
                     
                     <div className="flex-1 min-w-0 text-left">
-                      <h4 className="font-bold text-foreground truncate text-sm md:text-base">{formatText(provider.user.name.split(" ").slice(0, 2).join(" "))}</h4>
+                      <div className="flex justify-between items-start">
+                          <h4 className="font-bold text-foreground truncate text-sm md:text-base">{formatText(provider.user.name.split(" ").slice(0, 2).join(" "))}</h4>
+                          
+                          {/* --- RATING NOVO AQUI --- */}
+                          <div className="flex items-center gap-1 bg-yellow-500/10 px-1.5 py-0.5 rounded ml-2 border border-yellow-500/20">
+                            <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
+                            <span className="text-xs font-bold text-yellow-600">
+                                {provider.rating ? provider.rating.toFixed(1) : "5.0"}
+                            </span>
+                          </div>
+                      </div>
                       
                       <p className="text-xs text-primary font-bold mb-0.5 md:mb-1 truncate">
                         {formatText(provider.category)}
@@ -314,13 +322,6 @@ export function ClienteDashboard() {
               </div>
             )}
           </section>
-
-          <div className="flex justify-center pt-4 md:pt-8 pb-4">
-            <Button variant="ghost" className="text-muted-foreground hover:text-red-500 gap-2 hover:bg-red-500/10 rounded-xl px-6 text-sm" onClick={handleLogout}>
-              <LogOut className="w-4 h-4" /> Sair da conta
-            </Button>
-          </div>
-
         </div>
       </main>
     </>

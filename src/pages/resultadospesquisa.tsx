@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import Fora from "@/components/layout/headerFora"
 import Bar from "@/components/layout/headerCliente"
 
-// 1. ATUALIZEI A TIPAGEM PARA INCLUIR O BAIRRO
 type Provider = {
   id: string
   category: string
@@ -18,12 +17,10 @@ type Provider = {
     phone?: string
     avatarUrl?: string | null
     city: string
-    neighborhood?: string // <--- Adicionado aqui
+    neighborhood?: string
   }
 }
 
-// 2. FUNÇÃO PARA FORMATAR TEXTO (Capitalize)
-// Transforma "centro" ou "CENTRO" em "Centro"
 function formatText(text?: string) {
   if (!text) return ""
   return text
@@ -73,19 +70,9 @@ export function ResultadosPesquisa() {
   }, [category, q])
 
   const CATEGORIES = [
-    "Tecnologia",
-    "Reparos",
-    "Limpeza",
-    "Pintura",
-    "Construção",
-    "Beleza",
-    "Babá",
-    "Cuidadores",
-    "Culinária",
-    "Mudança",
-    "Fotografia",
-    "Motoristas",
-    "Outros",
+    "Tecnologia", "Reparos", "Limpeza", "Pintura", "Construção",
+    "Beleza", "Babá", "Cuidadores", "Culinária", "Mudança",
+    "Fotografia", "Motoristas", "Outros",
   ]
 
   function handleSearch(value?: string) {
@@ -93,7 +80,6 @@ export function ResultadosPesquisa() {
     if (!query) return
 
     const params = new URLSearchParams()
-
     const matchedCategory = CATEGORIES.find(
       (cat) => cat.toLowerCase() === query.toLowerCase()
     )
@@ -121,12 +107,7 @@ export function ResultadosPesquisa() {
   useEffect(() => {
     const token = localStorage.getItem("upaon_token")
     const user = localStorage.getItem("upaon_user")
-
-    if (token && user) {
-      setIsLoggedIn(true)
-    } else {
-      setIsLoggedIn(false)
-    }
+    setIsLoggedIn(!!(token && user))
   }, [])
 
   return (
@@ -144,14 +125,11 @@ export function ResultadosPesquisa() {
                 <Input
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
-                  onKeyDown={(e) =>
-                    e.key === "Enter" && handleSearch()
-                  }
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                   placeholder="Que serviço você precisa?"
                   className="border-0 bg-transparent focus-visible:ring-0"
                 />
               </div>
-
               <Button
                 variant="hero"
                 size="lg"
@@ -177,14 +155,14 @@ export function ResultadosPesquisa() {
 
           {/* Loading */}
           {loading && (
-            <p className="text-center text-muted-foreground">
-              Carregando prestadores...
-            </p>
+            <div className="text-center text-muted-foreground py-10">
+              <div className="animate-pulse flex justify-center mb-2">Carregando...</div>
+            </div>
           )}
 
           {/* Empty */}
           {!loading && providers.length === 0 && (
-            <p className="text-center text-muted-foreground">
+            <p className="text-center text-muted-foreground py-10">
               Nenhum prestador encontrado para essa pesquisa.
             </p>
           )}
@@ -194,12 +172,11 @@ export function ResultadosPesquisa() {
             {providers.map((provider) => (
               <div
                 key={provider.id}
-                className="bg-card/90 backdrop-blur-sm border border-border rounded-2xl shadow-large p-6 flex flex-col justify-between hover:scale-[1.02] transition-transform"
+                className="bg-card/90 backdrop-blur-sm border border-border rounded-2xl shadow-large p-6 flex flex-col justify-between hover:scale-[1.02] transition-transform duration-300"
               >
                 <div>
                   {/* --- CABEÇALHO DO CARD COM FOTO --- */}
                   <div className="flex items-start gap-4 mb-4">
-
                     {/* Container da Foto */}
                     <div className="relative w-14 h-14 rounded-full overflow-hidden bg-muted flex-shrink-0 border border-border/50 shadow-sm">
                       {provider.user.avatarUrl ? (
@@ -210,31 +187,35 @@ export function ResultadosPesquisa() {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                          <User className="w-7 h-7" />
+                          <img 
+                            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(provider.user.name)}&background=random`} 
+                            alt={provider.user.name} 
+                            className="w-full h-full object-cover" 
+                          />
                         </div>
                       )}
                     </div>
 
                     {/* Nome e Categoria */}
-                    <div>
-                      <h2 className="font-semibold text-lg text-foreground leading-tight">
+                    <div className="overflow-hidden">
+                      <h2 className="font-semibold text-lg text-foreground leading-tight truncate">
                         {formatText(provider.user.name)}
                       </h2>
-                      <p className="text-sm text-primary font-medium mt-1">
+                      <p className="text-sm text-primary font-medium mt-1 truncate">
                         {provider.category}
                       </p>
                     </div>
                   </div>
                   
                   {provider.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-3">
+                    <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
                       {provider.description}
                     </p>
                   )}
                 </div>
 
-                {/* 3. ATUALIZEI A EXIBIÇÃO DA LOCALIZAÇÃO */}
-                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-4">
+                {/* Localização */}
+                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-auto">
                   <MapPin className="w-3 h-3 flex-shrink-0" />
                   <span className="truncate max-w-[220px]">
                     {provider.user.neighborhood 
@@ -244,11 +225,22 @@ export function ResultadosPesquisa() {
                   </span>
                 </div>
 
-                <div className="mt-6 flex items-center justify-between pt-4 border-t border-border/50">
+                {/* --- FOOTER: RATING + BOTÃO --- */}
+                <div className="mt-4 flex items-center gap-3 pt-4 border-t border-border/50">
+                  
+                  {/* Rating Badge (VOLTOU AQUI) */}
+                  <div className="flex items-center gap-1.5 bg-yellow-500/10 px-3 py-2 rounded-xl border border-yellow-500/20 shadow-sm">
+                    <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
+                    <span className="font-bold text-yellow-600 text-sm">
+                      {provider.rating ? provider.rating.toFixed(1) : "5.0"}
+                    </span>
+                  </div>
+
+                  {/* Botão */}
                   <Button
                     variant="hero"
                     size="sm"
-                    className="rounded-xl w-full"
+                    className="rounded-xl flex-1 h-10 font-semibold"
                     onClick={() => handleViewProfile(provider.id)}
                   >
                     Ver perfil

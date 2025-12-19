@@ -42,7 +42,8 @@ const HowItWorksSection = () => {
         </div>
 
         {/* Steps */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        {/* MUDANÇA AQUI: Adicionei [zoom:0.85] para mobile e md:[zoom:1] para resetar no desktop */}
+        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto [zoom:0.85] md:[zoom:1]">
           {steps.map((step, index) => (
             <div
               key={step.number}

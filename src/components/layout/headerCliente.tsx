@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { LogOut, User,} from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 
 const Bar = () => {
   const navigate = useNavigate()
@@ -24,9 +25,9 @@ const Bar = () => {
   }, [])
 
   function handleLogout() {
-    localStorage.removeItem("user_token")
     localStorage.removeItem("upaon_token")
     localStorage.removeItem("upaon_user")
+    toast.success("Você saiu da conta.")
     navigate("/")
   }
 

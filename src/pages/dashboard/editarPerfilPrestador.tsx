@@ -1,10 +1,18 @@
 import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
-import { ArrowLeft, Camera, Save, User, Briefcase, Mail, Loader2, Phone, MapPin } from "lucide-react"
+import { ArrowLeft, User, Loader2, Phone, MapPin, Briefcase, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input" 
+import { Input } from "@/components/ui/input"
+import { toast } from "sonner"
 
 const CATEGORIES = ["Tecnologia", "Reparos", "Limpeza", "Pintura", "Construção", "Beleza", "Babá", "Cuidadores", "Culinária", "Mudança", "Fotografia", "Motoristas", "Outros"]
+
+const CITIES = [
+  "São Luís - MA",
+  "São José de Ribamar - MA",
+  "Paço do Lumiar - MA",
+  "Raposa - MA"
+]
 
 export function EditProfilePrestador() {
   const navigate = useNavigate()
@@ -90,10 +98,11 @@ export function EditProfilePrestador() {
 
       const updatedUser = await res.json()
       localStorage.setItem("upaon_user", JSON.stringify(updatedUser))
+      toast.success("Perfil atualizado com sucesso!")
       navigate("/dashboard/prestador")
 
     } catch (error) {
-      alert("Erro ao salvar perfil.")
+      toast.error("Erro ao salvar perfil.")
     } finally {
       setIsSaving(false)
     }
@@ -122,26 +131,64 @@ export function EditProfilePrestador() {
             <div className="space-y-4">
                 <div>
                     <label className="text-sm font-medium">Nome</label>
-                    <Input value={user.name} disabled className="bg-muted"/>
+                    <div className="relative">
+                        <User className="absolute left-3 top-2.5 w-5 h-5 text-muted-foreground" />
+                        <Input value={user.name} disabled className="pl-10 bg-muted"/>
+                    </div>
                 </div>
                 <div>
                     <label className="text-sm font-medium">Categoria</label>
-                    <select value={category} onChange={e => setCategory(e.target.value)} className="w-full h-10 rounded-md border px-3">
-                        <option value="">Selecione...</option>
-                        {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
+                    <div className="relative">
+                        <Briefcase className="absolute left-3 top-2.5 w-5 h-5 text-muted-foreground pointer-events-none" />
+                        <select 
+                            value={category} 
+                            onChange={e => setCategory(e.target.value)} 
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 pl-10 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        >
+                            <option value="">Selecione...</option>
+                            {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                    </div>
                 </div>
                 <div>
                     <label className="text-sm font-medium">Descrição</label>
-                    <textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full rounded-md border p-3 min-h-[100px]"/>
+                    <div className="relative">
+                        <FileText className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
+                        <textarea 
+                            value={description} 
+                            onChange={e => setDescription(e.target.value)} 
+                            className="w-full rounded-md border border-input bg-background px-3 py-2 pl-10 text-sm min-h-[100px] ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        />
+                    </div>
                 </div>
                  <div>
                     <label className="text-sm font-medium">Telefone / WhatsApp</label>
-                    <Input value={phone} onChange={e => setPhone(e.target.value)} />
+                    <div className="relative">
+                        <Phone className="absolute left-3 top-2.5 w-5 h-5 text-muted-foreground" />
+                        <Input value={phone} onChange={e => setPhone(e.target.value)} className="pl-10" />
+                    </div>
                 </div>
+                
+                <div>
+                    <label className="text-sm font-medium">Cidade</label>
+                    <div className="relative">
+                        <MapPin className="absolute left-3 top-2.5 w-5 h-5 text-muted-foreground pointer-events-none" />
+                        <select 
+                            value={city} 
+                            onChange={e => setCity(e.target.value)} 
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 pl-10 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        >
+                            {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                    </div>
+                </div>
+
                  <div>
                     <label className="text-sm font-medium">Bairro</label>
-                    <Input value={neighborhood} onChange={e => setNeighborhood(e.target.value)} />
+                    <div className="relative">
+                        <MapPin className="absolute left-3 top-2.5 w-5 h-5 text-muted-foreground" />
+                        <Input value={neighborhood} onChange={e => setNeighborhood(e.target.value)} placeholder="Ex: Cohab" className="pl-10" />
+                    </div>
                 </div>
             </div>
 
