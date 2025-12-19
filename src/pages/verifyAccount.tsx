@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
-import { Loader2, CheckCircle, AlertCircle } from "lucide-react"
+import { Loader2, CheckCircle, AlertCircle, Timer } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -14,10 +14,50 @@ export function VerifyAccount() {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
 
+  // --- NOVO: ESTADO DO TIMER ---
+  const [timeLeft, setTimeLeft] = useState(30) // Começa com 30s de espera
+  const [isResending, setIsResending] = useState(false)
+
   // Se não tiver email na URL, volta pro login
   useEffect(() => {
     if (!email) navigate("/login")
   }, [email, navigate])
+
+  // --- EFEITO DO TIMER ---
+  useEffect(() => {
+    // Se o tempo for maior que 0, diminui 1 a cada segundo
+    if (timeLeft > 0) {
+      const timerId = setTimeout(() => setTimeLeft(timeLeft - 1), 1000)
+      return () => clearTimeout(timerId)
+    }
+  }, [timeLeft])
+
+  // --- FUNÇÃO DE REENVIAR CÓDIGO ---
+  async function handleResendCode() {
+    if (timeLeft > 0) return
+    
+    setIsResending(true)
+    setError("")
+
+    try {
+        const res = await fetch("https://upaonservicesbackprototipo.onrender.com/auth/resend-code", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email })
+        })
+
+        if (!res.ok) throw new Error("Erro ao reenviar.")
+
+        // Sucesso: Reinicia o timer para 60 segundos
+        setTimeLeft(60)
+        alert("Novo código enviado! Verifique sua caixa de entrada.") // Depois mudaremos para Toast
+
+    } catch (err) {
+        setError("Não foi possível reenviar o código.")
+    } finally {
+        setIsResending(false)
+    }
+  }
 
   async function handleVerify() {
     setLoading(true)
@@ -32,25 +72,21 @@ export function VerifyAccount() {
 
       const data = await res.json()
 
-      if (!res.ok) throw new Error(data.error || "Erro ao verificar")
+      if (!res.ok) throw new Error(data.message || "Erro ao verificar") // Ajustei data.error para data.message
 
       // --- LÓGICA DE AUTO-LOGIN ---
       if (data.token) {
         localStorage.setItem("upaon_token", data.token)
-        // Opcional: Salvar dados do user se quiser usar no header
         localStorage.setItem("upaon_user", JSON.stringify(data.user))
       }
       // ----------------------------
 
       setSuccess(true)
       
-      // Espera 1.5 segundos (pra ver o check verde) e redireciona baseado no cargo
       setTimeout(() => {
         if (data.user?.role === "PROVIDER") {
-            // Se for prestador, manda pro perfil dele ou painel
             navigate("/dashboard/prestador") 
         } else {
-            // Se for cliente, manda pra busca (Home)
             navigate("/dashboard/cliente") 
         }
       }, 1500)
@@ -62,7 +98,6 @@ export function VerifyAccount() {
     }
   }
 
-  // Função para capturar o Enter
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && code.length === 6 && !loading) {
       handleVerify()
@@ -94,11 +129,11 @@ export function VerifyAccount() {
               <Input 
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                onKeyDown={handleKeyDown} // <--- AQUI ESTÁ O ENTER
+                onKeyDown={handleKeyDown}
                 placeholder="000000"
                 className="text-center text-3xl tracking-[10px] font-bold h-16 rounded-2xl border-2 focus-visible:ring-primary"
                 maxLength={6}
-                autoFocus // Foca direto no input ao abrir a tela
+                autoFocus 
               />
               
               {error && (
@@ -117,9 +152,28 @@ export function VerifyAccount() {
               </Button>
             </div>
             
-            <button className="text-sm text-primary hover:underline">
-              Reenviar código
-            </button>
+            {/* --- BOTÃO DE REENVIAR COM LÓGICA --- */}
+            <div className="pt-2">
+                <button 
+                    onClick={handleResendCode}
+                    disabled={timeLeft > 0 || isResending}
+                    className={`text-sm flex items-center justify-center gap-2 mx-auto transition-colors ${
+                        timeLeft > 0 
+                            ? "text-muted-foreground cursor-not-allowed" 
+                            : "text-primary hover:underline font-bold"
+                    }`}
+                >
+                    {isResending ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : timeLeft > 0 ? (
+                        <>
+                            <Timer className="w-3 h-3" /> Reenviar em {timeLeft}s
+                        </>
+                    ) : (
+                        "Reenviar código"
+                    )}
+                </button>
+            </div>
           </>
         )}
       </div>

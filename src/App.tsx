@@ -34,25 +34,29 @@ const App = () => (
       <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
+          
+          {/* ROTAS ESPECÍFICAS PRIMEIRO */}
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/cadastro/prestador" element={<Prestador />} />
           <Route path="/cadastro/cliente" element={<Cliente />} />
           <Route path="/verificar-conta" element={<VerifyAccount />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/dashboard/prestador" element={< ProviderDashboard/>} />
+          
+          <Route path="/dashboard/prestador" element={<ProviderDashboard/>} />
           <Route path="/dashboard/prestador/perfil" element={<EditProfilePrestador />} />
           <Route path="/dashboard/cliente/perfil" element={<EditProfileCliente />} />
           <Route path="/dashboard/cliente" element={<ClienteDashboard />} />
+          
           <Route path="/historico" element={<Historico />} />
           <Route path="/prestador/:id" element={<PrestadorDetalhes />} />
           <Route path="/categorias" element={<Categorias />} />
-          <Route path="/resultados"element={<ResultadosPesquisa />}/>
+          <Route path="/resultados" element={<ResultadosPesquisa />}/>
+          
           <Route path="/suporte/centraldeajuda" element={<CentralDeAjuda />} />
           <Route path="/suporte/termosdeuso" element={<TermosDeUso/>} />
           <Route path="/suporte/politicadeprivacidade" element={<PoliticaDePrivacidade/>} />
-
+          <Route path="*" element={<NotFound />} />
+          
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
