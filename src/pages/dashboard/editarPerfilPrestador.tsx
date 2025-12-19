@@ -4,6 +4,7 @@ import { ArrowLeft, User, Loader2, Phone, MapPin, Briefcase, FileText } from "lu
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
+import { API_URL } from "@/config/api"
 
 const CATEGORIES = ["Tecnologia", "Reparos", "Limpeza", "Pintura", "Construção", "Beleza", "Babá", "Cuidadores", "Culinária", "Mudança", "Fotografia", "Motoristas", "Outros"]
 
@@ -17,11 +18,12 @@ const CITIES = [
 export function EditProfilePrestador() {
   const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement>(null)
-  
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   
+  
+  const [name, setName] = useState("")
   const [description, setDescription] = useState("")
   const [category, setCategory] = useState("")
   const [phone, setPhone] = useState("")
@@ -47,9 +49,11 @@ export function EditProfilePrestador() {
         navigate("/dashboard/cliente/perfil")
         return
       }
+      
       setUser(parsedUser)
       setDescription(parsedUser.provider?.description || "")
       setCategory(parsedUser.provider?.category || "")
+      setName(parsedUser.name || "")
       setPhone(parsedUser.phone || "")
       setCity(parsedUser.city || "São Luís - MA")
       setNeighborhood(parsedUser.neighborhood || "")
@@ -82,13 +86,14 @@ export function EditProfilePrestador() {
       formData.append("category", category)
       
       // DADOS COMUNS
+      formData.append("name", name)
       formData.append("phone", phone)
       formData.append("city", city)
       formData.append("neighborhood", neighborhood)
       
       if (selectedFile) formData.append("avatar", selectedFile)
 
-      const res = await fetch("https://upaonservicesbackprototipo.onrender.com/users/profile", {
+      const res = await fetch(`${API_URL}/users/profile`, {
         method: "PATCH",
         headers: { "Authorization": `Bearer ${token}` },
         body: formData,
@@ -133,7 +138,7 @@ export function EditProfilePrestador() {
                     <label className="text-sm font-medium">Nome</label>
                     <div className="relative">
                         <User className="absolute left-3 top-2.5 w-5 h-5 text-muted-foreground" />
-                        <Input value={user.name} disabled className="pl-10 bg-muted"/>
+                        <Input value={name} onChange={e => setName(e.target.value)}  className="pl-10"/>
                     </div>
                 </div>
                 <div>

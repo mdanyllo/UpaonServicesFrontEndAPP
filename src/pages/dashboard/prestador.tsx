@@ -10,10 +10,33 @@ import {
   ShoppingBag,
   MessageCircle, 
   Eye,
-  Calendar
+  Calendar,
+  ArrowRight,
+  Rocket
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
+import { API_URL } from "@/config/api"
+
+function statusAvaliacao(rating: number) {
+  // Lógica das faixas de nota
+  if (rating >= 4.5) {
+    return { label: "Excelente", color: "text-green-500", bg: "bg-green-500/10" }
+  }
+  
+  if (rating >= 3.5) {
+    return { label: "Bom", color: "text-cyan-500", bg: "bg-cyan-500/10" }
+  }
+
+  if (rating >= 2.5) {
+    return { label: "Ruim", color: "text-red-500", bg: "bg-red-500/10" }
+  }
+
+  // Abaixo de 2.5
+  return { label: "Atenção", color: "text-red-800", bg: "bg-red-800/10" }
+}
+
+
 
 // Função auxiliar para formatar data
 function formatDate(dateString: string) {
@@ -26,21 +49,21 @@ function formatDate(dateString: string) {
   }).format(date)
 }
 
-  function formatText(text?: string) {
-    if (!text) return ""
-    return text
-      .toLowerCase()
-      .split(" ")
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ")
-  }
+function formatText(text?: string) {
+  if (!text) return ""
+  return text
+    .toLowerCase()
+    .split(" ")
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
+}
 
 export default function ProviderDashboard() {
   const navigate = useNavigate()
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   
-  // AGORA O STATS GUARDA A LISTA DE LOGS TAMBÉM
+  // Stats guarda contagem e logs
   const [stats, setStats] = useState<{ contacts: number, logs: any[] }>({ contacts: 0, logs: [] }) 
 
   useEffect(() => {
@@ -52,38 +75,66 @@ export default function ProviderDashboard() {
       return
     }
 
-    try {
-      const parsedUser = JSON.parse(storedUser)
+    // --- LÓGICA DE CARREGAMENTO CORRIGIDA ---
+    async function loadDashboardData() {
+      try {
+        const parsedUser = JSON.parse(storedUser!)
 
-      if (parsedUser.role !== "PROVIDER") {
-        console.warn("Acesso negado: Usuário não é prestador")
-        navigate("/dashboard/cliente", { replace: true })
-        return
-      }
+        // 1. Verifica Permissão
+        if (parsedUser.role !== "PROVIDER") {
+          toast.error("Acesso restrito a prestadores.")
+          navigate("/dashboard/cliente", { replace: true })
+          return
+        }
 
-      setUser(parsedUser)
-      setIsLoading(false)
-
-      if (parsedUser.provider?.id) {
-        fetch(`https://upaonservicesbackprototipo.onrender.com/providers/${parsedUser.provider.id}/stats`)
-          .then(res => res.json())
-          .then(data => {
-            // Garante que logs seja sempre um array, mesmo se vier null
-            setStats({
-                contacts: data.contacts || 0,
-                logs: data.logs || []
+        // 2. BUSCA DADOS ATUALIZADOS DO USUÁRIO (Corrige o bug de dados sumindo)
+        // Primeiro setamos o do cache pra ser rápido
+        let currentUser = parsedUser 
+        
+        try {
+            const userRes = await fetch(`${API_URL}/users/${parsedUser.id}`, {
+                headers: { "Authorization": `Bearer ${storedToken}` }
             })
-          })
-          .catch(err => console.error("Erro ao buscar stats", err))
-      }
+            
+            if (userRes.ok) {
+                const freshUser = await userRes.json()
+                currentUser = freshUser
+                localStorage.setItem("upaon_user", JSON.stringify(freshUser))
+            }
+        } catch (err) {
+            console.error("Erro ao atualizar perfil, usando cache.", err)
+        }
 
-    } catch (error) {
-      localStorage.clear()
-      navigate("/login")
+        setUser(currentUser)
+
+        // 3. BUSCA ESTATÍSTICAS E LOGS
+        // Usa o ID do provider (pode vir do cache ou do freshUser)
+        const providerId = currentUser.provider?.id || parsedUser.provider?.id
+
+        if (providerId) {
+          const statsRes = await fetch(`${API_URL}/providers/${providerId}/stats`)
+          const statsData = await statsRes.json()
+          
+          setStats({
+            contacts: statsData.contacts || 0,
+            logs: statsData.logs || []
+          })
+        }
+
+      } catch (error) {
+        console.error("Erro geral no dashboard", error)
+        localStorage.clear()
+        navigate("/login")
+      } finally {
+        setIsLoading(false)
+      }
     }
+
+    loadDashboardData()
+
   }, [navigate])
 
-function handleLogout() {
+  function handleLogout() {
     localStorage.removeItem("upaon_token")
     localStorage.removeItem("upaon_user")
     toast.success("Você saiu da conta.")
@@ -107,6 +158,9 @@ function handleLogout() {
         </div>
     )
   }
+
+  const currentRating = user.provider?.rating || 0
+  const status = statusAvaliacao(currentRating)
 
   return (
     <section className="relative min-h-screen pt-14 md:pt-18 pb-12 bg-gradient-sunset overflow-hidden">
@@ -167,11 +221,13 @@ function handleLogout() {
               <div className="p-3 bg-yellow-500/10 rounded-xl text-yellow-500 group-hover:scale-110 transition-transform">
                 <Star className="w-6 h-6 fill-yellow-500" />
               </div>
-              <span className="text-xs font-medium bg-green-500/10 text-green-500 px-2 py-1 rounded-full">
-                Excelente
-              </span>
+              <div id="avaliacao">
+                <span className={`text-xs font-medium ${status.bg} ${status.color} px-2 py-1 rounded-full`}>
+                  {status.label}
+                </span>
+              </div>
             </div>
-            <h3 className="text-3xl font-bold mt-4 text-foreground">
+            <h3 className={`text-3xl font-bold mt-4 text-foreground`}>
               {user.provider?.rating ? user.provider.rating.toFixed(1) : "5.0"}
             </h3>
             <p className="text-sm text-muted-foreground">Avaliação Média</p>
@@ -195,20 +251,38 @@ function handleLogout() {
             <p className="text-sm text-muted-foreground">Cliques no WhatsApp</p>
           </div>
 
-          {/* Card 3: Status */}
-          <div className="bg-card/60 backdrop-blur-md border border-white/10 p-6 rounded-2xl shadow-large hover:bg-card/80 transition-colors group">
-            <div className="flex justify-between items-start">
-              <div className="p-3 bg-purple-500/10 rounded-xl text-purple-500 group-hover:scale-110 transition-transform">
-                <Eye className="w-6 h-6" />
+          {/* Card 3: DESTAQUE / IMPULSIONAR (Transformado) */}
+          <div 
+            onClick={() => toast.info("Funcionalidade de Destaque em breve!")} // Aqui você colocará a lógica de pagamento depois
+            className="relative overflow-hidden bg-gradient-to-br from-white to-orange-500/5 backdrop-blur-md border border-orange-500/20 p-6 rounded-2xl shadow-large hover:shadow-orange-500/20 transition-all duration-300 group cursor-pointer hover:scale-[1.02]"
+          >
+            {/* Efeito de brilho no fundo */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl -mr-16 -mt-16 transition-opacity group-hover:opacity-75" />
+
+            <div className="flex justify-between items-start relative z-10">
+              <div className="p-3 bg-gradient-hero rounded-xl text-white shadow-lg shadow-orange-500/20 group-hover:rotate-12 transition-transform duration-300">
+                <Rocket className="w-6 h-6" />
               </div>
-              <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-1 rounded-full">
-                Ativo
+              <span className="text-xs font-medium bg-gradient-hero text-white px-2 py-1 rounded-full backdrop-blur-md">
+                Premium
               </span>
             </div>
-            <h3 className="text-xl font-bold mt-4 text-foreground">Disponível</h3>
-            <p className="text-sm text-muted-foreground">Perfil visível na busca</p>
+
+            <div className="relative z-10">
+              <h3 className="text-xl font-bold mt-4 text-foreground group-hover:text-gradient-hero transition-colors">
+                Turbinar Perfil
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1 leading-tight">
+                Apareça no topo das buscas e receba <span className="text-foreground font-bold">3x mais clientes</span>.
+              </p>
+              
+              <div className="mt-3 flex items-center text-xs font-bold text-gradient-hero group-hover:text-gradient-hero transition-colors">
+                Saiba como funciona <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform"/>
+              </div>
+            </div>
           </div>
         </div>
+
 
         {/* --- ÁREA PRINCIPAL --- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in order-1 lg:order-2 mb-10 lg:mb-0" style={{ animationDelay: "200ms" }}>
@@ -219,13 +293,8 @@ function handleLogout() {
               <MessageCircle className="w-5 ml-5 h-5 text-primary" /> Histórico de Contatos
             </h2>
 
-            {/* AQUI ESTÁ A LÓGICA DE EXIBIÇÃO DA LISTA */}
             {stats.logs && stats.logs.length > 0 ? (
                 
-                // 1. ADICIONE ESSAS CLASSES NO CONTAINER PAI:
-                // max-h-[400px] -> Altura máxima fixa
-                // overflow-y-auto -> Cria barra de rolagem se passar da altura
-                // pr-2 -> Um pouco de espaço na direita pra barra não colar no texto
                 <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                     
                     {stats.logs.map((log: any) => (
@@ -258,7 +327,6 @@ function handleLogout() {
                     ))}
                 </div>
             ) : (
-                // --- CASO NÃO TENHA DADOS: MOSTRA O PLACEHOLDER ANTIGO ---
                 <div className="bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-8 text-center shadow-sm">
                     <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                         <MessageCircle className="w-8 h-8 text-muted-foreground/50" />
@@ -298,7 +366,14 @@ function handleLogout() {
                 </p>
 
                 <div className="w-full flex justify-center">
-                    <Button className="w-full rounded-xl" variant="hero" size="sm">Divulgar</Button>
+                    <Button 
+                      className="w-full rounded-xl" 
+                      variant="hero" 
+                      size="sm"
+                      onClick={() => navigate(`/prestador/${user.provider?.id || user.id}`)}
+                    >
+                      Ver como público
+                    </Button>
                 </div>
               </div>
             </div>

@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom"
 import { Mail, ArrowLeft, ArrowRight, KeyRound, Loader2, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { API_URL } from "@/config/api"
 
 export function RecoverPassword() {
   const navigate = useNavigate()
@@ -26,7 +27,7 @@ export function RecoverPassword() {
     setError("") // Limpa erro anterior
 
     try {
-      const res = await fetch("https://upaonservicesbackprototipo.onrender.com/auth/forgot-password", {
+      const res = await fetch(`${API_URL}/auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -56,7 +57,7 @@ export function RecoverPassword() {
     try {
         if (newPassword.length < 6) throw new Error("A senha deve ter no mínimo 6 caracteres.")
 
-        const res = await fetch("https://upaonservicesbackprototipo.onrender.com/auth/reset-password", {
+        const res = await fetch(`${API_URL}/auth/reset-password`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, code, newPassword }),

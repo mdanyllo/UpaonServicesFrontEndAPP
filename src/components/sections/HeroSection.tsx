@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { API_URL } from "@/config/api"
 
 type Stats = {
   providers: number
@@ -56,7 +57,7 @@ const HeroSection = () => {
     async function loadStats() {
       try {
         const res = await fetch(
-          "https://upaonservicesbackprototipo.onrender.com/stats"
+          `${API_URL}/stats`
         )
         const data = await res.json()
         setStats(data)

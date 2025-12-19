@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { ArrowLeft, MessageCircle, MapPin, User, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Bar from "@/components/layout/headerCliente"
+import { API_URL } from "@/config/api"
 
 function formatText(text?: string) {
   if (!text) return ""
@@ -36,7 +37,7 @@ export function Historico() {
     }
     const user = JSON.parse(storedUser)
 
-    fetch(`https://upaonservicesbackprototipo.onrender.com/users/${user.id}/history`)
+    fetch(`${API_URL}/users/${user.id}/history`)
       .then(res => res.json())
       .then(data => {
         setLogs(data.logs || [])

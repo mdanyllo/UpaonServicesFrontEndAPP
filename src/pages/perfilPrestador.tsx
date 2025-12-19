@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import Bar from "@/components/layout/headerCliente"
 import { ReviewsSection } from "@/components/ReviewsSection"
 import { toast } from "sonner"
+import { API_URL } from "@/config/api"
 
 // 1. HELPER PARA FORMATAR TEXTO (Adicionado aqui)
 function formatText(text?: string) {
@@ -42,7 +43,7 @@ export function PrestadorDetalhes() {
 
     async function fetchProvider() {
       try {
-        const res = await fetch("https://upaonservicesbackprototipo.onrender.com/providers")
+        const res = await fetch(`${API_URL}/providers`)
         const data = await res.json()
         const found = data.find((p: any) => p.id === id)
         setProvider(found)
@@ -64,7 +65,7 @@ export function PrestadorDetalhes() {
 
     // Salva a métrica de clique
     if (user && user.id) {
-        fetch(`https://upaonservicesbackprototipo.onrender.com/providers/${provider.id}/contact`, {
+        fetch(`${API_URL}/providers/${provider.id}/contact`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ clientId: user.id })

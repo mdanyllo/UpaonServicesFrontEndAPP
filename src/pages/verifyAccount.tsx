@@ -4,6 +4,7 @@ import { Loader2, CheckCircle, AlertCircle, Timer } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
+import { API_URL } from "@/config/api"
 
 export function VerifyAccount() {
   const navigate = useNavigate()
@@ -41,7 +42,7 @@ export function VerifyAccount() {
     setError("")
 
     try {
-        const res = await fetch("https://upaonservicesbackprototipo.onrender.com/auth/resend-code", {
+        const res = await fetch(`${API_URL}/auth/resend-code`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email })
@@ -65,7 +66,7 @@ export function VerifyAccount() {
     setError("")
 
     try {
-      const res = await fetch("https://upaonservicesbackprototipo.onrender.com/auth/verify", {
+      const res = await fetch(`${API_URL}/auth/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code })

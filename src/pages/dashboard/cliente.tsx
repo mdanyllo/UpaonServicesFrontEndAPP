@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { 
-  Search, MapPin, MapPinOff, User, Clock, 
-  LogOut, Wrench, Zap, Paintbrush, Hammer,
-  LayoutDashboard, Star // <--- Importei Star aqui
+  Search, MapPin, MapPinOff, Clock, 
+  LayoutDashboard, Star, // <--- Star mantida
+  Zap, Wrench, Paintbrush, Hammer
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Bar from "@/components/layout/headerCliente"
-import { toast } from "sonner"
+import { API_URL } from "@/config/api"
 
 const QUICK_CATEGORIES = [
   { name: "Tecnologia", icon: Zap, color: "text-yellow-500", bg: "bg-yellow-500/10" },
@@ -89,28 +89,43 @@ export function ClienteDashboard() {
     const parsedUser = JSON.parse(storedUser)
     setUser(parsedUser)
 
-    fetch(`https://upaonservicesbackprototipo.onrender.com/users/${parsedUser.id}/history`)
+    fetch(`${API_URL}/users/${parsedUser.id}/history`)
       .then(res => res.json())
       .then(data => setHistoryCount(data.count || 0))
       .catch(err => console.error("Erro ao buscar histórico", err))
 
   }, [navigate])
 
+  // --- OTIMIZAÇÃO DE CARREGAMENTO ---
   useEffect(() => {
     async function loadProviders() {
       if (!user) return 
 
       try {
         const params = new URLSearchParams()
+        
+        // Filtros de Localização
         if (user.city) params.append("city", user.city)
         if (user.neighborhood) params.append("neighborhood", user.neighborhood)
-
-        const res = await fetch(`https://upaonservicesbackprototipo.onrender.com/providers?${params.toString()}`)
         
-        const data = await res.json()
-        setNearbyProviders(data.slice(0, 10))
+        // LIMITA A BUSCA NO SERVIDOR (Performance Crucial)
+        params.append("limit", "6") // Pega só 6 para fechar o grid bonito
+
+        const res = await fetch(`${API_URL}/providers?${params.toString()}`)
+        const responseData = await res.json()
+
+        // Tratamento blindado (Array vs Objeto)
+        if (Array.isArray(responseData)) {
+            setNearbyProviders(responseData)
+        } else if (responseData && Array.isArray(responseData.data)) {
+            setNearbyProviders(responseData.data)
+        } else {
+            setNearbyProviders([])
+        }
+
       } catch (error) {
         console.error("Erro ao carregar prestadores", error)
+        setNearbyProviders([])
       }
     }
 
@@ -149,18 +164,33 @@ export function ClienteDashboard() {
   const userCity = user.city
   const isProvider = user.role === "PROVIDER"
 
+  // Lógica do botão flutuante temporário
+  window.addEventListener('load', () => {
+    const elemento = document.getElementById("elemento") as HTMLElement;
+    if (elemento) {
+        setTimeout (() => {
+            elemento.classList.remove('hidden')
+            elemento.classList.add('inline')
+        }, 2000)
+
+        setTimeout (() => {
+            elemento.classList.add("hidden")
+        }, 5500)
+    }
+  })
+
   return (
     <>
       <Bar />
 
       {isProvider && (
-        <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 animate-fade-in">
+        <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 animate-fade-in ">
           <Button 
             onClick={voltarParaPrestador}
-            className="rounded-full shadow-2xl bg-primary text-primary-foreground hover:bg-primary/90 h-12 w-12 md:h-14 md:w-auto md:px-6 gap-2 border-4 border-white dark:border-zinc-900 transition-transform hover:scale-105 flex items-center justify-center"
+            className="rounded-full shadow-2xl bg-primary text-primary-foreground hover:bg-primary/90 h-12 w-auto md:h-14  md:px-6 gap-2 border-4 border-white dark:border-zinc-900 transition-transform hover:scale-105 flex items-center justify-center"
           >
-            <LayoutDashboard className="w-5 h-5" />
-            <span className="hidden md:inline font-bold">Voltar para perfil de Prestador</span>
+            <LayoutDashboard className="md:w-5 w-20 h-5" />
+            <span id="elemento" className="hidden font-bold">Voltar para perfil de Prestador</span>
           </Button>
         </div>
       )}
@@ -268,8 +298,8 @@ export function ClienteDashboard() {
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <img 
-                          src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`} 
-                          alt={user.name} 
+                          src={`https://ui-avatars.com/api/?name=${encodeURIComponent(provider.user.name)}&background=random`} 
+                          alt={provider.user.name} 
                           className="w-full h-full object-cover" 
                         /></div>
                       )}
@@ -279,7 +309,7 @@ export function ClienteDashboard() {
                       <div className="flex justify-between items-start">
                           <h4 className="font-bold text-foreground truncate text-sm md:text-base">{formatText(provider.user.name.split(" ").slice(0, 2).join(" "))}</h4>
                           
-                          {/* --- RATING NOVO AQUI --- */}
+                          {/* RATING */}
                           <div className="flex items-center gap-1 bg-yellow-500/10 px-1.5 py-0.5 rounded ml-2 border border-yellow-500/20">
                             <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
                             <span className="text-xs font-bold text-yellow-600">

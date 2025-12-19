@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react"
-import { useNavigate } from "react-router-dom"
+import { Form, useNavigate } from "react-router-dom"
 import { ArrowLeft, User, Loader2, Phone, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input" 
 import { toast } from "sonner"
+import { API_URL } from "@/config/api"
 
 const CITIES = [
   "São Luís - MA",
@@ -20,6 +21,7 @@ export function EditProfileCliente() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   
+  const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
   const [city, setCity] = useState("")
   const [neighborhood, setNeighborhood] = useState("")
@@ -44,6 +46,7 @@ export function EditProfileCliente() {
         return
       }
       setUser(parsedUser)
+      setName(parsedUser.name || "")
       setPhone(parsedUser.phone || "")
       setCity(parsedUser.city || "São Luís - MA")
       setNeighborhood(parsedUser.neighborhood || "")
@@ -70,14 +73,15 @@ export function EditProfileCliente() {
     try {
       const token = localStorage.getItem("upaon_token")
       const formData = new FormData()
-
+    
+      formData.append("name", name)
       formData.append("phone", phone)
       formData.append("city", city)
       formData.append("neighborhood", neighborhood)
       
       if (selectedFile) formData.append("avatar", selectedFile)
 
-      const res = await fetch("https://upaonservicesbackprototipo.onrender.com/users/profile", {
+      const res = await fetch(`${API_URL}/users/profile`, {
         method: "PATCH",
         headers: { "Authorization": `Bearer ${token}` },
         body: formData,
@@ -122,7 +126,7 @@ export function EditProfileCliente() {
                     <label className="text-sm font-medium">Nome</label>
                     <div className="relative">
                         <User className="absolute left-3 top-2.5 w-5 h-5 text-muted-foreground" />
-                        <Input value={user.name} disabled className="pl-10 bg-muted"/>
+                        <Input value={name} onChange={e => setName(e.target.value)} className="pl-10"/>
                     </div>
                 </div>
 

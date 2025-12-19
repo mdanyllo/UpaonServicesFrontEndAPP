@@ -2,6 +2,8 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useNavigate } from "react-router-dom"
+import { ArrowLeft } from "lucide-react"
+import { API_URL } from "@/config/api"
 
 const categories = [
   "Tecnologia",
@@ -78,7 +80,7 @@ export function Prestador() {
 
     try {
       const res = await fetch(
-        "https://upaonservicesbackprototipo.onrender.com/auth/register",
+        `${API_URL}/auth/register`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -91,7 +93,7 @@ export function Prestador() {
         throw new Error(err.message || "Erro ao criar conta")
       }
 
-      // 3. SUCESSO: Redireciona para a verificação com o email na URL
+      // Redireciona para a verificação com o email na URL
       navigate(`/verificar-conta?email=${email}`)
 
     } catch (err: any) {
@@ -112,7 +114,14 @@ export function Prestador() {
         onSubmit={handleSubmit}
         className="relative z-10 w-full max-w-md bg-card/90 backdrop-blur-sm border border-border rounded-2xl shadow-large p-8 space-y-6 animate-fade-in"
       >
+           <div className="w-1">
+            <a onClick={() => navigate(-1)} className="text-zinc-800 hover:bg-white/20 cursor-pointer">
+              <ArrowLeft /> Voltar
+            </a>
+          </div>
         <div className="text-center">
+          <div className="max-w-4xl flex mb-3">
+        </div>
           <h1 className="font-display font-bold text-3xl text-foreground">
             Criar conta na{" "}
             <span className="text-gradient-hero">UpaonServices</span>

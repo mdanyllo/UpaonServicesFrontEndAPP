@@ -23,6 +23,7 @@ import { Categorias } from "./pages/dashboard/categorias";
 import { PrestadorDetalhes } from "./pages/perfilPrestador";
 import { Historico } from "./pages/Historico";
 import { RecoverPassword } from "./pages/RecoverPassword";
+import AdminDashboard from "./pages/admin";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,8 @@ const App = () => (
           <Route path="/login" element={<LoginPage />} />
           <Route path="/recuperar-senha" element={<RecoverPassword />} />
           
+          <Route path="/dashboard/superadmin" element={<AdminDashboard />} />
+
           <Route path="/dashboard/prestador" element={<ProviderDashboard/>} />
           <Route path="/dashboard/prestador/perfil" element={<EditProfilePrestador />} />
           <Route path="/dashboard/cliente/perfil" element={<EditProfileCliente />} />

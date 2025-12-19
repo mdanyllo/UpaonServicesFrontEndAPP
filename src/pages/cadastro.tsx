@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button"
+import { ArrowLeft } from "lucide-react"
 import { useNavigate, Link } from "react-router-dom"
 
 export function Cadastro() {
@@ -11,6 +13,13 @@ function handleChoose(path: "/cadastro/cliente" | "/cadastro/prestador") {
     <div className="min-h-screen flex items-center justify-center bg-gradient-sunset from-orange-50 to-orange-100 px-4">
       <div className="animate-fade-in w-full max-w-4xl bg-white rounded-2xl shadow-xl p-8 space-y-8">
         <div className="text-center space-y-2">
+          <div className="max-w-4xl flex mb-3">
+        </div>
+          <div className="w-1">
+            <a onClick={() => navigate(-1)} className="text-zinc-800 hover:bg-white/20 cursor-pointer">
+              <ArrowLeft /> Voltar
+            </a>
+          </div>
           <h1 className="text-3xl font-bold">
             Como você deseja usar a {""}
             <span className="text-gradient-hero">UpaonServices</span>?
