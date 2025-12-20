@@ -7,10 +7,10 @@ import { toast } from 'sonner';
 initMercadoPago('TEST-52cee956-dbcc-49fe-9cbd-e4ca68daf56a');
 
 export const PaymentPage = () => {
-  const { providerId, amount } = useParams<{ providerId: string, amount: string }>();
+const { providerId } = useParams<{ providerId: string }>();
 
   const initialization = {
-    amount: Number(amount),
+    amount: 2.00, 
   };
 
   const customization = {
@@ -56,7 +56,7 @@ export const PaymentPage = () => {
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
       <h1>Finalizar Pagamento</h1>
-      <p>{amount}</p>
+      <p>2.00</p>
       <PaymentBrick
         initialization={initialization}
         customization={customization}
