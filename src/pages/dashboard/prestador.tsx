@@ -178,7 +178,7 @@ export default function ProviderDashboard() {
   }
   
   // Navega para o checkout com os dados corretos
-  navigate(`/checkout/${providerId}`);
+navigate(`/checkout/${providerId}?type=FEATURED&amount=19.90`);
 };
 
   return (

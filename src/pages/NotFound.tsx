@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom"
-import { MapPinOff, Home, ArrowLeft } from "lucide-react"
+import { Home, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 const NotFound = () => {
@@ -8,7 +8,6 @@ const NotFound = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-sunset px-4 text-center">
       <div className="bg-card/90 backdrop-blur-md p-10 rounded-3xl shadow-2xl border border-white/20 max-w-md w-full animate-fade-in-up">
-
         <h1 className="text-6xl font-display font-bold text-gradient-hero mb-2">404</h1>
         <h2 className="text-2xl font-bold text-foreground mb-4">Ops! Caminho errado.</h2>
         
