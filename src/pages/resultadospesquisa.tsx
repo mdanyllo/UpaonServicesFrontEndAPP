@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useSearchParams, useNavigate } from "react-router-dom"
-import { Star, User, Search, MapPin, Loader2, Plus } from "lucide-react"
+import { Star, User, Search, MapPin, Loader2, Plus, ArrowLeft } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import Fora from "@/components/layout/headerFora"
@@ -150,6 +150,11 @@ export function ResultadosPesquisa() {
         <div className="container mx-auto max-w-6xl">
 
           {/* Busca */}
+           <div className="w-1">
+            <a onClick={() => navigate(-1)} className="text-zinc-800 hover:bg-white/20 cursor-pointer animate-fade-in">
+              <ArrowLeft /> Voltar
+            </a>
+          </div>
           <div className="bg-card mb-6 rounded-2xl p-2 shadow-large max-w-2xl mx-auto animate-fade-in">
             <div className="flex flex-col md:flex-row gap-2">
               <div className="flex-1 flex items-center gap-3 px-4">

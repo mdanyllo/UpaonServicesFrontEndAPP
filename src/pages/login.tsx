@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { API_URL } from "@/config/api";
+import { toast } from "sonner";
 
 export function LoginPage() {
   const [loading, setLoading] = useState(false);
@@ -78,11 +79,18 @@ if (!res.ok) {
       }
 
       // Salva os dados
-      localStorage.setItem("upaon_token", data.token) // ATENÇÃO AQUI (leia nota abaixo)
+      localStorage.setItem("upaon_token", data.token) 
       localStorage.setItem("upaon_user", JSON.stringify(data.user))
+
+      toast.success("Login realizado com sucesso!")
 
       // Recupera o bilhete
       const redirectUrl = localStorage.getItem("redirect_after_login")
+
+      if (data.user.role === "ADMIN") {
+        navigate("/dashboard/superadmin")
+        return
+    }
 
       if (redirectUrl) {
         // Se tiver bilhete:
@@ -118,7 +126,7 @@ if (!res.ok) {
         className="relative z-10 w-full max-w-md bg-card/90 backdrop-blur-sm border border-border rounded-2xl shadow-large p-8 space-y-6 animate-fade-in"
       > 
         <div className="w-1">
-            <a onClick={() => navigate(-1)} className="text-zinc-800 hover:bg-white/20 cursor-pointer">
+            <a onClick={() => navigate(-1)} className="text-zinc-800 hover:bg-white/20 cursor-pointer animate-fade-in">
               <ArrowLeft /> Voltar
             </a>
           </div>

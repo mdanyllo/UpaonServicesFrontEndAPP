@@ -16,7 +16,7 @@ function handleChoose(path: "/cadastro/cliente" | "/cadastro/prestador") {
           <div className="max-w-4xl flex mb-3">
         </div>
           <div className="w-1">
-            <a onClick={() => navigate(-1)} className="text-zinc-800 hover:bg-white/20 cursor-pointer">
+            <a onClick={() => navigate(-1)} className="text-zinc-800 hover:bg-white/20 cursor-pointer animate-fade-in">
               <ArrowLeft /> Voltar
             </a>
           </div>

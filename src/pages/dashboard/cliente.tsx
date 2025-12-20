@@ -164,20 +164,6 @@ export function ClienteDashboard() {
   const userCity = user.city
   const isProvider = user.role === "PROVIDER"
 
-  // Lógica do botão flutuante temporário
-  window.addEventListener('load', () => {
-    const elemento = document.getElementById("elemento") as HTMLElement;
-    if (elemento) {
-        setTimeout (() => {
-            elemento.classList.remove('hidden')
-            elemento.classList.add('inline')
-        }, 2000)
-
-        setTimeout (() => {
-            elemento.classList.add("hidden")
-        }, 5500)
-    }
-  })
 
   return (
     <>
@@ -190,7 +176,7 @@ export function ClienteDashboard() {
             className="rounded-full shadow-2xl bg-primary text-primary-foreground hover:bg-primary/90 h-12 w-auto md:h-14  md:px-6 gap-2 border-4 border-white dark:border-zinc-900 transition-transform hover:scale-105 flex items-center justify-center"
           >
             <LayoutDashboard className="md:w-5 w-20 h-5" />
-            <span id="elemento" className="hidden font-bold">Voltar para perfil de Prestador</span>
+            <span id="elemento" className=" md:text-base text-xs font-bold">Voltar para perfil de Prestador</span>
           </Button>
         </div>
       )}

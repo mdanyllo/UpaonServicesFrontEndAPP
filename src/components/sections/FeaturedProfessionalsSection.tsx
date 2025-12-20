@@ -1,4 +1,4 @@
-import { MapPin, CheckCircle2, Star, Loader2, Plus } from "lucide-react" 
+import { MapPin, CheckCircle2, Star, Loader2, Plus, Shield } from "lucide-react" 
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
@@ -9,6 +9,7 @@ type Professional = {
   category: string
   description?: string
   rating?: number
+  isFeatured: boolean
   user: {
     name: string
     avatarUrl?: string
@@ -152,17 +153,17 @@ const FeaturedProfessionalsSection = () => {
                 >
                   {/* Image */}
                   <div className="relative aspect-square overflow-hidden">
+                    {pro.isFeatured && (
+                  <div className="absolute top-2 left-2 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-b from-yellow-300 to-yellow-500 px-2.5 py-1 text-[10px] font-bold uppercase text-yellow-950 shadow-lg shadow-yellow-900/20 border-t border-white/50">
+                    <Shield className="h-3.5 w-3.5 fill-yellow-900 text-yellow-900" />
+                    Destaque
+                  </div>
+                )}
                     <img
                       src={avatarUrl}
                       alt={name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute top-2 right-2 md:top-3 md:right-3 bg-card/90 backdrop-blur-sm rounded-full px-2 py-0.5 md:px-3 md:py-1 flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 text-palm" />
-                      <span className="text-[10px] md:text-xs font-medium text-foreground">
-                        Verificado
-                      </span>
-                    </div>
                   </div>
 
                   {/* Content */}
