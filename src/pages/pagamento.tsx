@@ -34,7 +34,7 @@ export const PaymentPage = () => {
     </div>
   )}
 
-  const onSubmit = async ({ formData }: any) => {
+const onSubmit = async ({ formData }: any) => {
     try {
       const response = await axios.post(`${API_URL}/payment`, { 
         formData, providerId, type, amount: amountUrl
@@ -44,10 +44,19 @@ export const PaymentPage = () => {
 
       if (status === 'approved') {
         toast.success("Pagamento aprovado com sucesso!");
-        navigate("/dashboard/prestador")
+        
+        // Timeout para garantir que o toast apareça e evitar que a tela trave no feedback do MP
+        setTimeout(() => {
+          window.location.href = "/dashboard/prestador";
+        }, 1500);
+
       } else if (status === 'pending' || status === 'in_process') {
         toast.success("Pagamento pendente ou em processamento.");
-        if (ticket_url) window.location.href = ticket_url;
+        if (ticket_url) {
+          setTimeout(() => {
+            window.location.href = ticket_url;
+          }, 1500);
+        }
       } else if (status === 'rejected') {
         const erros: any = {
           'cc_rejected_bad_filled_card_number': "Número do cartão inválido.",
