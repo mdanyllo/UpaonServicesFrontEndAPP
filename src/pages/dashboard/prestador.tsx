@@ -159,12 +159,12 @@ export default function ProviderDashboard() {
       
       {(user.isActivated === false || user.provider?.isActive === false) && (
         <div className="fixed inset-0 z-[9999] bg-background/60 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-500">
-            <div className="w-1">
-                <a onClick={() => navigate(-1)} className="text-zinc-800 hover:bg-white/20 cursor-pointer animate-fade-in">
+          <div className="w-full max-w-md bg-card border-2 border-primary/20 rounded-3xl p-8 shadow-2xl text-center space-y-6 animate-in zoom-in-95 duration-300">
+              <div className="w-1">
+                <a onClick={() => {localStorage.removeItem("upaon_token");localStorage.removeItem("upaon_user"); window.location.href = "/";}} className="text-zinc-800 hover:bg-white/20 cursor-pointer animate-fade-in">
                   <ArrowLeft /> Voltar
                 </a>
             </div>
-          <div className="w-full max-w-md bg-card border-2 border-primary/20 rounded-3xl p-8 shadow-2xl text-center space-y-6 animate-in zoom-in-95 duration-300">
             <div className="bg-primary/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 relative">
               <ShieldCheck className="w-10 h-10 text-primary animate-pulse" />
               <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-ping opacity-20" />

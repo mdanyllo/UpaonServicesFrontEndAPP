@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import ScrollToTop from "./components/scrolTop";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -35,10 +35,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const user = localStorage.getItem("upaon_user");
   
   if (!token || !user) {
-    return <BrowserRouter><Routes><Route path="*" element={<LoginPage />} /></Routes></BrowserRouter>;
-    // Ou simplesmente redirecionar para login
-    window.location.href = "/login";
-    return null;
+    // Em vez de BrowserRouter, usamos o Navigate do react-router-dom
+    return <Navigate to="/login" replace />;
   }
   return <>{children}</>;
 };
