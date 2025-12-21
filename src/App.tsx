@@ -25,8 +25,23 @@ import { Historico } from "./pages/Historico";
 import { RecoverPassword } from "./pages/RecoverPassword";
 import AdminDashboard from "./pages/admin/superadmin";
 import {PaymentPage } from "./pages/pagamento";
+import { Destaque } from "./pages/destacar";
 
 const queryClient = new QueryClient();
+
+// Componente de Proteção Simples
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const token = localStorage.getItem("upaon_token");
+  const user = localStorage.getItem("upaon_user");
+  
+  if (!token || !user) {
+    return <BrowserRouter><Routes><Route path="*" element={<LoginPage />} /></Routes></BrowserRouter>;
+    // Ou simplesmente redirecionar para login
+    window.location.href = "/login";
+    return null;
+  }
+  return <>{children}</>;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -53,6 +68,7 @@ const App = () => (
           <Route path="/dashboard/prestador/perfil" element={<EditProfilePrestador />} />
           <Route path="/dashboard/cliente/perfil" element={<EditProfileCliente />} />
           <Route path="/dashboard/cliente" element={<ClienteDashboard />} />
+          <Route path="/dashboard/prestador/destaque" element={< Destaque/>} />
           
           <Route path="/historico" element={<Historico />} />
           <Route path="/prestador/:id" element={<PrestadorDetalhes />} />

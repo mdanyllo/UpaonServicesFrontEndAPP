@@ -19,53 +19,60 @@ const CTASection = () => {
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        {/* MUDANÇA AQUI: Adicionado [zoom:0.85] para mobile e resetado no desktop */}
         <div className="grid md:grid-cols-2 gap-8 [zoom:0.85] md:[zoom:1]">
           
-          {/* For Service Seekers */}
-          <div className="bg-card/10 backdrop-blur-sm rounded-3xl p-8 md:p-10 border border-primary-foreground/20">
-            <div className="w-14 h-14 bg-primary-foreground/20 rounded-2xl flex items-center justify-center mb-6">
-              <Users className="w-7 h-7 text-primary-foreground" />
+          {/* For Service Seekers - Adicionado flex flex-col justify-between */}
+          <div className="bg-card/10 backdrop-blur-sm rounded-3xl p-8 md:p-10 border border-primary-foreground/20 flex flex-col justify-between">
+            <div>
+              <div className="w-14 h-14 bg-primary-foreground/20 rounded-2xl flex items-center justify-center mb-6">
+                <Users className="w-7 h-7 text-primary-foreground" />
+              </div>
+              <h3 className="font-display font-bold text-2xl md:text-3xl text-primary-foreground mb-4">
+                Precisa de um serviço?
+              </h3>
+              <p className="text-primary-foreground/80 mb-8 leading-relaxed">
+                Encontre profissionais qualificados para qualquer tipo de serviço. 
+                Compare preços, leia avaliações e contrate com segurança.
+              </p>
             </div>
-            <h3 className="font-display font-bold text-2xl md:text-3xl text-primary-foreground mb-4">
-              Precisa de um serviço?
-            </h3>
-            <p className="text-primary-foreground/80 mb-8 leading-relaxed">
-              Encontre profissionais qualificados para qualquer tipo de serviço. 
-              Compare preços, leia avaliações e contrate com segurança.
-            </p>
-            <Button 
-              variant="white" 
-              size="lg"
-              className="group"
-              onClick={() => handleChoose("/cadastro/cliente")}
-            >
-              Buscar profissionais
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
+            <div>
+              <Button 
+                variant="white" 
+                size="lg"
+                className="group"
+                onClick={() => handleChoose("/cadastro/cliente")}
+              >
+                Buscar profissionais
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </div>
           </div>
 
-          {/* For Professionals */}
-          <div className="bg-card/10 backdrop-blur-sm rounded-3xl p-8 md:p-10 border border-primary-foreground/20">
-            <div className="w-14 h-14 bg-primary-foreground/20 rounded-2xl flex items-center justify-center mb-6">
-              <Briefcase className="w-7 h-7 text-primary-foreground" />
+          {/* For Professionals - Adicionado flex flex-col justify-between */}
+          <div className="bg-card/10 backdrop-blur-sm rounded-3xl p-8 md:p-10 border border-primary-foreground/20 flex flex-col justify-between">
+            <div>
+              <div className="w-14 h-14 bg-primary-foreground/20 rounded-2xl flex items-center justify-center mb-6">
+                <Briefcase className="w-7 h-7 text-primary-foreground" />
+              </div>
+              <h3 className="font-display font-bold text-2xl md:text-3xl text-primary-foreground mb-4">
+                É profissional?
+              </h3>
+              <p className="text-primary-foreground/80 mb-8 leading-relaxed">
+                Cadastre-se gratuitamente e comece a receber propostas de trabalho. 
+                Aumente sua renda e conquiste novos clientes em São Luís.
+              </p>
             </div>
-            <h3 className="font-display font-bold text-2xl md:text-3xl text-primary-foreground mb-4">
-              É profissional?
-            </h3>
-            <p className="text-primary-foreground/80 mb-8 leading-relaxed">
-              Cadastre-se gratuitamente e comece a receber propostas de trabalho. 
-              Aumente sua renda e conquiste novos clientes em São Luís.
-            </p>
-            <Button 
-              variant="white" 
-              size="lg"
-              className="group"
-              onClick={() => handleChoose("/cadastro/prestador")}
-            >
-              Cadastrar como profissional
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
+            <div>
+              <Button 
+                variant="white" 
+                size="lg"
+                className="group w-full md:w-auto"
+                onClick={() => handleChoose("/cadastro/prestador")}
+              >
+                Cadastrar como profissional
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>

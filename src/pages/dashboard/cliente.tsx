@@ -1,20 +1,25 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import { 
   Search, MapPin, MapPinOff, Clock, 
-  LayoutDashboard, Star, // <--- Star mantida
-  Zap, Wrench, Paintbrush, Hammer
+  LayoutDashboard, Star, Shield, Rocket,
+  Zap, Wrench, Paintbrush, Hammer, Briefcase, Camera, Heart, Scissors
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Bar from "@/components/layout/headerCliente"
 import { API_URL } from "@/config/api"
 
-const QUICK_CATEGORIES = [
+// Lista estendida para permitir a alternância (shuffle)
+const ALL_QUICK_CATEGORIES = [
   { name: "Tecnologia", icon: Zap, color: "text-yellow-500", bg: "bg-yellow-500/10" },
   { name: "Reparos", icon: Wrench, color: "text-blue-500", bg: "bg-blue-500/10" },
   { name: "Limpeza", icon: Paintbrush, color: "text-green-500", bg: "bg-green-500/10" },
   { name: "Construção", icon: Hammer, color: "text-orange-500", bg: "bg-orange-500/10" },
+  { name: "Beleza", icon: Scissors, color: "text-pink-500", bg: "bg-pink-500/10" },
+  { name: "Fotografia", icon: Camera, color: "text-purple-500", bg: "bg-purple-500/10" },
+  { name: "Cuidadores", icon: Heart, color: "text-red-500", bg: "bg-red-500/10" },
+  { name: "Consultoria", icon: Briefcase, color: "text-indigo-500", bg: "bg-indigo-500/10" },
 ]
 
 const CATEGORIES_LIST = [
@@ -24,30 +29,14 @@ const CATEGORIES_LIST = [
 ]
 
 const KEYWORD_MAP: Record<string, string> = {
-  "eletricista": "Reparos",
-  "encanador": "Reparos",
-  "conserto": "Reparos",
-  "técnico": "Reparos",
-  "diarista": "Limpeza",
-  "faxina": "Limpeza",
-  "limpeza": "Limpeza",
-  "pedreiro": "Construção",
-  "obra": "Construção",
-  "pintor": "Pintura",
-  "pintura": "Pintura",
-  "babá": "Babá",
-  "cuidador": "Cuidadores",
-  "enfermeira": "Cuidadores",
-  "motorista": "Motoristas",
-  "uber": "Motoristas",
-  "frete": "Mudança",
-  "mudança": "Mudança",
-  "bolo": "Culinária",
-  "comida": "Culinária",
-  "unha": "Beleza",
-  "cabelo": "Beleza",
-  "maquiagem": "Beleza",
-  "computador": "Tecnologia",
+  "eletricista": "Reparos", "encanador": "Reparos", "conserto": "Reparos",
+  "técnico": "Reparos", "diarista": "Limpeza", "faxina": "Limpeza",
+  "limpeza": "Limpeza", "pedreiro": "Construção", "obra": "Construção",
+  "pintor": "Pintura", "pintura": "Pintura", "babá": "Babá",
+  "cuidador": "Cuidadores", "enfermeira": "Cuidadores", "motorista": "Motoristas",
+  "uber": "Motoristas", "frete": "Mudança", "mudança": "Mudança",
+  "bolo": "Culinária", "comida": "Culinária", "unha": "Beleza",
+  "cabelo": "Beleza", "maquiagem": "Beleza", "computador": "Tecnologia",
   "formatar": "Tecnologia"
 }
 
@@ -55,6 +44,7 @@ type Provider = {
   id: string
   category: string
   rating: number
+  isFeatured: boolean // <--- Adicionado
   user: {
     name: string
     avatarUrl?: string | null
@@ -68,16 +58,18 @@ export function ClienteDashboard() {
   const [user, setUser] = useState<any>(null)
   const [nearbyProviders, setNearbyProviders] = useState<Provider[]>([])
   const [searchText, setSearchText] = useState("")
-  
   const [historyCount, setHistoryCount] = useState(0)
+
+  // LÓGICA DE ALTERNÂNCIA DE CATEGORIAS (Shuffle)
+  const quickCategories = useMemo(() => {
+    return [...ALL_QUICK_CATEGORIES]
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 4)
+  }, [])
 
   function formatText(text?: string) {
     if (!text) return ""
-    return text
-      .toLowerCase()
-      .split(" ")
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ")
+    return text.toLowerCase().split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ")
   }
 
   useEffect(() => {
@@ -93,28 +85,20 @@ export function ClienteDashboard() {
       .then(res => res.json())
       .then(data => setHistoryCount(data.count || 0))
       .catch(err => console.error("Erro ao buscar histórico", err))
-
   }, [navigate])
 
-  // --- OTIMIZAÇÃO DE CARREGAMENTO ---
   useEffect(() => {
     async function loadProviders() {
       if (!user) return 
-
       try {
         const params = new URLSearchParams()
-        
-        // Filtros de Localização
         if (user.city) params.append("city", user.city)
         if (user.neighborhood) params.append("neighborhood", user.neighborhood)
-        
-        // LIMITA A BUSCA NO SERVIDOR (Performance Crucial)
-        params.append("limit", "6") // Pega só 6 para fechar o grid bonito
+        params.append("limit", "6")
 
         const res = await fetch(`${API_URL}/providers?${params.toString()}`)
         const responseData = await res.json()
 
-        // Tratamento blindado (Array vs Objeto)
         if (Array.isArray(responseData)) {
             setNearbyProviders(responseData)
         } else if (responseData && Array.isArray(responseData.data)) {
@@ -122,35 +106,23 @@ export function ClienteDashboard() {
         } else {
             setNearbyProviders([])
         }
-
       } catch (error) {
         console.error("Erro ao carregar prestadores", error)
         setNearbyProviders([])
       }
     }
-
     loadProviders()
   }, [user])
 
   function handleSearch() {
     const rawQuery = searchText.trim()
     if (!rawQuery) return
-
     const queryLower = rawQuery.toLowerCase()
     const params = new URLSearchParams()
-
-    const exactCategory = CATEGORIES_LIST.find(
-      (cat) => cat.toLowerCase() === queryLower
-    )
-
-    if (exactCategory) {
-      params.append("category", exactCategory)
-    } else if (KEYWORD_MAP[queryLower]) {
-      params.append("category", KEYWORD_MAP[queryLower])
-    } else {
-      params.append("q", rawQuery)
-    }
-
+    const exactCategory = CATEGORIES_LIST.find((cat) => cat.toLowerCase() === queryLower)
+    if (exactCategory) params.append("category", exactCategory)
+    else if (KEYWORD_MAP[queryLower]) params.append("category", KEYWORD_MAP[queryLower])
+    else params.append("q", rawQuery)
     navigate(`/resultados?${params.toString()}`)
   }
   
@@ -163,7 +135,6 @@ export function ClienteDashboard() {
   const firstName = formatText(user.name.split(" ")[0])
   const userCity = user.city
   const isProvider = user.role === "PROVIDER"
-
 
   return (
     <>
@@ -182,7 +153,6 @@ export function ClienteDashboard() {
       )}
 
       <main className="min-h-screen bg-gradient-sunset pt-20 md:pt-24 pb-6 px-4">
-        
         <div className="container mx-auto max-w-6xl space-y-12 md:space-y-10">
 
           <section className="text-center space-y-4 md:space-y-6 animate-fade-in">
@@ -213,7 +183,7 @@ export function ClienteDashboard() {
             </div>
           </section>
 
-          {/* --- BLOCO DE CATEGORIAS --- */}
+          {/* --- BLOCO DE CATEGORIAS ALTERNANTES --- */}
           <div>
             <div className="flex items-center justify-between max-w-5xl mx-auto md:mt-15 mb-2 px-1 animate-fade-in delay-100">
               <div className="flex items-center gap-2">
@@ -224,7 +194,7 @@ export function ClienteDashboard() {
             </div>
             
             <section className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 max-w-5xl mx-auto animate-fade-in delay-100">
-                {QUICK_CATEGORIES.map((cat) => (
+                {quickCategories.map((cat) => (
                 <button
                     key={cat.name}
                     onClick={() => navigate(`/resultados?category=${cat.name}`)}
@@ -275,9 +245,21 @@ export function ClienteDashboard() {
                 {nearbyProviders.map((provider) => (
                   <div 
                     key={provider.id} 
-                    className="bg-card border border-border rounded-2xl p-4 md:p-5 shadow-sm hover:shadow-md transition-all flex items-start gap-3 md:gap-4 hover:scale-[1.02] duration-300 cursor-pointer"
+                    className="relative bg-card border border-border rounded-2xl p-6 md:p-7 shadow-sm hover:shadow-md transition-all flex items-start gap-3 md:gap-4 hover:scale-[1.02] duration-300 cursor-pointer overflow-hidden"
                     onClick={() => {navigate(`/prestador/${provider.id}`)}}
                   >
+                    {/* LÓGICA DE SELOS (SHIELD E ROCKET) */}
+                    {provider.isFeatured && (
+                      <div className="absolute top-2 left-2 right-2 z-20 flex justify-between items-start pointer-events-none">
+                        <div className="flex items-center gap-1.5 rounded-full bg-gradient-to-b from-yellow-300 to-yellow-500 p-1.5 text-yellow-950 shadow-lg border-t border-white/50">
+                          <Shield className="h-3.5 w-3.5 fill-yellow-900" />
+                        </div>
+                        <div className="bg-gradient-hero rounded-full text-white shadow-lg shadow-orange-500/20 p-1.5 flex items-center justify-center border-t border-white/20">
+                          <Rocket className="h-3.5 w-3.5" />
+                        </div>
+                      </div>
+                    )}
+
                     <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-muted overflow-hidden flex-shrink-0 border border-border">
                       {provider.user.avatarUrl ? (
                         <img src={provider.user.avatarUrl} className="w-full h-full object-cover" alt={provider.user.name} />
@@ -292,10 +274,8 @@ export function ClienteDashboard() {
                     </div>
                     
                     <div className="flex-1 min-w-0 text-left">
-                      <div className="flex justify-between items-start">
+                      <div className="flex md:gap-3 gap-4 items-start">
                           <h4 className="font-bold text-foreground truncate text-sm md:text-base">{formatText(provider.user.name.split(" ").slice(0, 2).join(" "))}</h4>
-                          
-                          {/* RATING */}
                           <div className="flex items-center gap-1 bg-yellow-500/10 px-1.5 py-0.5 rounded ml-2 border border-yellow-500/20">
                             <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
                             <span className="text-xs font-bold text-yellow-600">
@@ -303,11 +283,9 @@ export function ClienteDashboard() {
                             </span>
                           </div>
                       </div>
-                      
                       <p className="text-xs text-primary font-bold mb-0.5 md:mb-1 truncate">
                         {formatText(provider.category)}
                       </p>
-                      
                       <div className="flex items-center gap-1 text-xs text-muted-foreground truncate">
                           <MapPin className="w-3 h-3 flex-shrink-0" /> 
                           <span className="truncate">

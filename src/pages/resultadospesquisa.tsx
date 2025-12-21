@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useSearchParams, useNavigate } from "react-router-dom"
-import { Star, User, Search, MapPin, Loader2, Plus, ArrowLeft } from "lucide-react"
+import { Star, User, Search, MapPin, Loader2, Plus, ArrowLeft, Shield, Rocket } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import Fora from "@/components/layout/headerFora"
@@ -12,6 +12,7 @@ type Provider = {
   category: string
   description?: string
   rating: number
+  isFeatured: boolean
   user: {
     id: string
     name: string
@@ -27,12 +28,8 @@ function formatText(text?: string) {
 }
 
 export function ResultadosPesquisa() {
-  // ESTADOS
-  // Inicializamos com array vazio para garantir que nunca seja undefined
   const [providers, setProviders] = useState<Provider[]>([]) 
   const [loading, setLoading] = useState(false)
-  
-  // ESTADOS DE PAGINAÇÃO
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
 
@@ -44,7 +41,6 @@ export function ResultadosPesquisa() {
   const category = searchParams.get("category")
   const q = searchParams.get("q")
 
-  // 1. Reseta e recarrega quando muda a busca
   useEffect(() => {
     setProviders([])
     setPage(1)
@@ -52,37 +48,28 @@ export function ResultadosPesquisa() {
     loadProviders(1, true)
   }, [category, q])
 
-  // 2. LÓGICA DE PAGINAÇÃO CORRIGIDA E BLINDADA
   async function loadProviders(currentPage: number, isNewSearch = false) {
     try {
       setLoading(true)
       const params = new URLSearchParams()
       if (category) params.append("category", category)
       if (q) params.append("q", q)
-      
-      // Parâmetros de Paginação
       params.append("page", currentPage.toString())
       params.append("limit", "10") 
 
       const res = await fetch(`${API_URL}/providers?${params.toString()}`)
-      
       if (!res.ok) throw new Error("Erro na API")
-      
       const responseData = await res.json()
 
       let newList: Provider[] = []
       let meta = null
 
-      // --- PROTEÇÃO CONTRA FORMATO DE DADOS ---
       if (Array.isArray(responseData)) {
-        // Caso o Backend ainda esteja mandando o formato antigo (Array direto)
         newList = responseData
       } else if (responseData && Array.isArray(responseData.data)) {
-        // Caso o Backend esteja mandando o formato novo (Objeto com data)
         newList = responseData.data
         meta = responseData.meta
       } else {
-        // Se vier qualquer outra coisa (erro ou objeto vazio), garantimos lista vazia
         newList = []
       }
 
@@ -92,17 +79,13 @@ export function ResultadosPesquisa() {
         setProviders((prev) => [...(prev || []), ...newList])
       }
 
-      // Verifica se acabou as páginas
       if (meta && currentPage >= meta.lastPage) {
         setHasMore(false)
       } else if (newList.length === 0) {
-        // Se não veio nada e não tem meta, assumimos que acabou
         setHasMore(false)
       }
-
     } catch (err) {
       console.error("Erro ao buscar", err)
-      // Em caso de erro, não quebramos a lista existente se for carregamento extra
       if (isNewSearch) setProviders([]) 
     } finally {
       setLoading(false)
@@ -149,8 +132,7 @@ export function ResultadosPesquisa() {
       <section className="min-h-screen bg-gradient-sunset pt-28 px-4 pb-20">
         <div className="container mx-auto max-w-6xl">
 
-          {/* Busca */}
-           <div className="w-1">
+          <div className="w-1">
             <a onClick={() => navigate(-1)} className="text-zinc-800 hover:bg-white/20 cursor-pointer animate-fade-in">
               <ArrowLeft /> Voltar
             </a>
@@ -180,11 +162,22 @@ export function ResultadosPesquisa() {
             </p>
           </div>
 
-          {/* GRID DE CARDS */}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {/* AQUI ESTAVA O ERRO: Adicionei (providers || []).map para proteger */}
             {Array.isArray(providers) && providers.map((provider) => (
-              <div key={provider.id} className="bg-card/90 backdrop-blur-sm border border-border rounded-2xl shadow-large p-6 flex flex-col justify-between hover:scale-[1.02] transition-transform duration-300">
+              <div key={provider.id} className="relative bg-card/90 backdrop-blur-sm border border-border rounded-2xl shadow-large py-9 p-6 flex flex-col justify-between hover:scale-[1.02] transition-transform duration-300 overflow-hidden">
+                
+                {/* SELOS RESPONSIVOS CORRIGIDOS */}
+                {provider.isFeatured && (
+                  <div className="absolute top-2 left-2 right-2 z-20 flex justify-between items-start pointer-events-none">
+                    <div title="Destaque" className="flex items-center gap-1.5 rounded-full bg-gradient-to-b from-yellow-300 to-yellow-500 p-1.5 md:p-2 text-yellow-950 shadow-lg border-t border-white/50">
+                      <Shield className="h-3.5 w-3.5 fill-yellow-900" />
+                    </div>
+                    <div title="Destaque" className="bg-gradient-hero rounded-full text-white shadow-lg shadow-orange-500/20 p-1.5 md:p-2 flex items-center justify-center border-t border-white/20">
+                      <Rocket className="h-3.5 w-3.5" />
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <div className="flex items-start gap-4 mb-4">
                     <div className="relative w-14 h-14 rounded-full overflow-hidden bg-muted flex-shrink-0 border border-border/50 shadow-sm">
@@ -228,19 +221,16 @@ export function ResultadosPesquisa() {
             ))}
           </div>
           
-          {/* MENSAGEM DE VAZIO */}
           {!loading && providers.length === 0 && (
             <p className="text-center text-muted-foreground py-10">Nenhum prestador encontrado.</p>
           )}
 
-          {/* LOADING INICIAL */}
           {loading && providers.length === 0 && (
              <div className="text-center text-muted-foreground py-10">
                 <div className="animate-pulse flex justify-center mb-2">Carregando...</div>
              </div>
           )}
 
-          {/* BOTÃO CARREGAR MAIS */}
           {hasMore && providers.length > 0 && (
             <div className="flex justify-center mt-12">
                 <Button 

@@ -15,13 +15,26 @@ const cities = [
 export function Cliente() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const navigate = useNavigate()
+  const [phone, setPhone] = useState("") // Estado para o telefone
   const [acceptTerms, setAcceptTerms] = useState(false)
+  const navigate = useNavigate()
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    // Remove tudo que não é número
+    value = value.replace(/\D/g, "");
+    // Aplica a formatação (99) 99999-9999
+    value = value.replace(/(\d{2})(\d)/, "($1) $2");
+    value = value.replace(/(\d{5})(\d)/, "$1-$2");
+
+    if (value.length > 15) value = value.substring(0, 15);
+
+    setPhone(value);
+  };
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     
-    // 1. Verifica os termos ANTES de tudo
     if (!acceptTerms) {
       setError("Você precisa aceitar os Termos de Uso para continuar.")
       return
@@ -45,7 +58,7 @@ export function Cliente() {
       name: formData.get("name") as string,
       email: email,
       password: password,
-      phone: formData.get("phone") as string,
+      phone: phone.replace(/\D/g, ""), // Envia apenas os números para o banco
       city: formData.get("city") as string,  
       neighborhood: formData.get("neighborhood") as string,
       role: "CLIENT",
@@ -119,7 +132,10 @@ export function Cliente() {
 
           <Input
             name="phone"
-            placeholder="WhatsApp (ex: 98900000000)"
+            value={phone}
+            onChange={handlePhoneChange}
+            placeholder="WhatsApp (ex: (98) 99999-9999)"
+            required
             className="rounded-xl"
           />
 

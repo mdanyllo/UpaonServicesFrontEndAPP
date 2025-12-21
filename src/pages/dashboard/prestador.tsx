@@ -12,33 +12,29 @@ import {
   Eye,
   Calendar,
   ArrowRight,
-  Rocket
+  Rocket,
+  ShieldCheck,
+  Zap,
+  Lock,
+  Shield
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { API_URL } from "@/config/api"
 
 function statusAvaliacao(rating: number) {
-  // Lógica das faixas de nota
   if (rating >= 4.5) {
     return { label: "Excelente", color: "text-green-500", bg: "bg-green-500/10" }
   }
-  
   if (rating >= 3.5) {
     return { label: "Bom", color: "text-cyan-500", bg: "bg-cyan-500/10" }
   }
-
   if (rating >= 2.5) {
     return { label: "Ruim", color: "text-red-500", bg: "bg-red-500/10" }
   }
-
-  // Abaixo de 2.5
   return { label: "Atenção", color: "text-red-800", bg: "bg-red-800/10" }
 }
 
-
-
-// Função auxiliar para formatar data
 function formatDate(dateString: string) {
   const date = new Date(dateString)
   return new Intl.DateTimeFormat('pt-BR', {
@@ -62,8 +58,6 @@ export default function ProviderDashboard() {
   const navigate = useNavigate()
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
-  
-  // Stats guarda contagem e logs
   const [stats, setStats] = useState<{ contacts: number, logs: any[] }>({ contacts: 0, logs: [] }) 
 
   useEffect(() => {
@@ -75,20 +69,16 @@ export default function ProviderDashboard() {
       return
     }
 
-    // --- LÓGICA DE CARREGAMENTO CORRIGIDA ---
     async function loadDashboardData() {
       try {
         const parsedUser = JSON.parse(storedUser!)
-
-        // 1. Verifica Permissão
+        
         if (parsedUser.role !== "PROVIDER") {
           toast.error("Acesso restrito a prestadores.")
           navigate("/dashboard/cliente", { replace: true })
           return
         }
 
-        // 2. BUSCA DADOS ATUALIZADOS DO USUÁRIO (Corrige o bug de dados sumindo)
-        // Primeiro setamos o do cache pra ser rápido
         let currentUser = parsedUser 
         
         try {
@@ -107,8 +97,6 @@ export default function ProviderDashboard() {
 
         setUser(currentUser)
 
-        // 3. BUSCA ESTATÍSTICAS E LOGS
-        // Usa o ID do provider (pode vir do cache ou do freshUser)
         const providerId = currentUser.provider?.id || parsedUser.provider?.id
 
         if (providerId) {
@@ -131,7 +119,6 @@ export default function ProviderDashboard() {
     }
 
     loadDashboardData()
-
   }, [navigate])
 
   function handleLogout() {
@@ -162,37 +149,73 @@ export default function ProviderDashboard() {
   const currentRating = user.provider?.rating || 0
   const status = statusAvaliacao(currentRating)
 
- const handleUpgrade = () => {
-  const storedUser = localStorage.getItem("upaon_user");
-  if (!storedUser) {
-    toast.error("Usuário não autenticado");
-    return;
-  }
-
-  const parsedUser = JSON.parse(storedUser);
-  const providerId = parsedUser.provider?.id;
-
-  if (!providerId) {
-    toast.error("Você precisa ser um prestador para acessar esta área.");
-    return;
-  }
-  
-  // Navega para o checkout com os dados corretos
-navigate(`/checkout/${providerId}?type=FEATURED&amount=19.90`);
-};
+  const handleUpgrade = () => {
+    navigate("/dashboard/prestador/destaque");
+  };
 
   return (
     <section className="relative min-h-screen pt-14 md:pt-18 pb-12 bg-gradient-sunset overflow-hidden">
       
-      {/* --- BG ANIMADO --- */}
+      {(user.isActivated === false || user.provider?.isActive === false) && (
+        <div className="fixed inset-0 z-[9999] bg-background/60 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-500">
+          <div className="w-full max-w-md bg-card border-2 border-primary/20 rounded-3xl p-8 shadow-2xl text-center space-y-6 animate-in zoom-in-95 duration-300">
+            <div className="bg-primary/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 relative">
+              <ShieldCheck className="w-10 h-10 text-primary animate-pulse" />
+              <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-ping opacity-20" />
+            </div>
+
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold font-display text-foreground">
+                Autenticação de Segurança
+              </h2>
+              <p className="text-muted-foreground text-sm leading-relaxed px-2">
+                Nossa plataforma utiliza <span className="text-foreground font-semibold">autenticação financeira</span> para validar sua identidade. Isso garante que apenas profissionais reais e comprometidos acessem nossa base de clientes.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-2xl p-4 flex items-center justify-between border border-border group hover:border-primary/30 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Lock className="w-4 h-4 text-primary" />
+                </div>
+                <span className="text-sm font-medium">Taxa de Ativação e Autenticação</span>
+              </div>
+              <span className="text-xl font-bold text-gradient-hero">R$ 1,99</span>
+            </div>
+
+            <div className="space-y-4">
+              <Button 
+                onClick={() => navigate(`/checkout/${user.provider?.id}?type=ACTIVATION&amount=1.99`)}
+                className="w-full bg-primary hover:bg-primary/90 text-white font-bold h-14 rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
+              >
+                AUTENTICAR E ATIVAR CONTA
+                <Zap className="w-4 h-4 fill-white" />
+              </Button>
+              
+              <div className="flex flex-col items-center gap-3">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
+                  Liberação imediata pós-autenticação
+                </p>
+                <div className="flex items-center justify-center gap-3 opacity-60">
+                  <img 
+                    src="/mpblue.svg" 
+                    alt="Mercado Pago" 
+                    className="h-9 w-auto" 
+                  />
+                  <span className="text-[10px] border-l border-zinc-400 pl-3">Ambiente 100% Criptografado</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 right-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse-soft" />
         <div className="absolute bottom-20 left-10 w-96 h-96 bg-ocean/10 rounded-full blur-3xl animate-pulse-soft" />
       </div>
 
-    <div className="container flex flex-col mx-auto px-4 relative z-10">
-        
-        {/* --- HEADER DO DASHBOARD --- */}
+      <div className="container flex flex-col mx-auto px-4 relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 animate-fade-in">
           <div className="md:ml-5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-2 border border-primary/20">
@@ -202,9 +225,20 @@ navigate(`/checkout/${providerId}?type=FEATURED&amount=19.90`);
               </span>
               Painel do Prestador
             </div>
-            <h1 className="font-display font-bold text-3xl md:text-4xl text-foreground">
-              Olá, <span className="text-gradient-hero">{formatText(user.name.split(" ")[0])}</span>
-            </h1>
+            
+            {/* SAUDAÇÃO COM SELOS DE DESTAQUE LÁ EM CIMA */}
+            <div className="flex items-center gap-4 flex-wrap">
+              <h1 className="font-display font-bold text-3xl md:text-4xl text-foreground">
+                Olá, <span className="text-gradient-hero">{formatText(user.name.split(" ")[0])}</span>
+              </h1>
+              {user.provider?.isFeatured && (
+                <div title="Você é um profissional DESTAQUE!" className="flex items-center gap-1.5 animate-in fade-in zoom-in duration-700 delay-300">
+                  <Shield className="w-6 h-6 md:w-8 md:h-8 text-yellow-500 fill-yellow-500 drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]" />
+                  <Rocket className="w-6 h-6 md:w-8 md:h-8 text-orange-500 fill-orange-500 drop-shadow-[0_0_10px_rgba(249,115,22,0.5)]" />
+                </div>
+              )}
+            </div>
+
             <p className="text-muted-foreground mt-1 flex items-center gap-2">
               <MapPin className="w-4 h-4" /> 
               {user.city || "São Luís - MA"} • {user.provider?.category || "Profissional"}
@@ -212,29 +246,19 @@ navigate(`/checkout/${providerId}?type=FEATURED&amount=19.90`);
           </div>
 
           <div className="flex gap-3 flex-wrap">
-            <Button 
-                onClick={irParaModoCliente} 
-                variant="ghost" 
-                size="sm" 
-                className="rounded-xl gap-2 shadow-lg hover:shadow-primary/25 transition-all"
-            >
+            <Button onClick={irParaModoCliente} variant="ghost" size="sm" className="rounded-xl gap-2 shadow-lg hover:shadow-primary/25 transition-all">
                 <ShoppingBag className="w-4 h-4" /> Modo Cliente
             </Button>
-
-            <Button onClick={editarPerfil} size="sm" variant="ghost"  className="rounded-xl gap-2 shadow-lg hover:shadow-primary/25 transition-all">
+            <Button onClick={editarPerfil} size="sm" variant="ghost" className="rounded-xl gap-2 shadow-lg hover:shadow-primary/25 transition-all">
               <Settings className="w-4 h-4" /> Editar Perfil
             </Button>
-            
             <Button variant="outline" size="sm" className="rounded-xl gap-2 shadow-lg hover:shadow-primary/25 transition-all" onClick={handleLogout}>
               <LogOut className="w-4 h-4" /> Sair
             </Button>
           </div>
         </div>
 
-        {/* --- GRID DE ESTATÍSTICAS --- */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 animate-fade-in order-2 lg:order-1" style={{ animationDelay: "100ms" }}>
-          
-          {/* Card 1: Avaliação */}
           <div className="bg-card/60 backdrop-blur-md border border-white/10 p-6 rounded-2xl shadow-large hover:bg-card/80 transition-colors group">
             <div className="flex justify-between items-start">
               <div className="p-3 bg-yellow-500/10 rounded-xl text-yellow-500 group-hover:scale-110 transition-transform">
@@ -252,94 +276,56 @@ navigate(`/checkout/${providerId}?type=FEATURED&amount=19.90`);
             <p className="text-sm text-muted-foreground">Avaliação Média</p>
           </div>
 
-          {/* Card 2: CLIQUES NO WHATSAPP */}
           <div className="bg-card/60 backdrop-blur-md border border-white/10 p-6 rounded-2xl shadow-large hover:bg-card/80 transition-colors group">
             <div className="flex justify-between items-start">
               <div className="p-3 bg-green-500/10 rounded-xl text-green-500 group-hover:scale-110 transition-transform">
                 <MessageCircle className="w-6 h-6" />
               </div>
-              <span className="text-xs font-medium bg-green-500/10 text-green-500 px-2 py-1 rounded-full">
-                Interessados
-              </span>
+              <span className="text-xs font-medium bg-green-500/10 text-green-500 px-2 py-1 rounded-full">Interessados</span>
             </div>
-            
-            <h3 className="text-3xl font-bold mt-4 text-foreground">
-              {stats.contacts}
-            </h3>
-            
+            <h3 className="text-3xl font-bold mt-4 text-foreground">{stats.contacts}</h3>
             <p className="text-sm text-muted-foreground">Cliques no WhatsApp</p>
           </div>
 
-          {/* Card 3: DESTAQUE / IMPULSIONAR (Transformado) */}
-          <div 
-            onClick={handleUpgrade}
-            className="relative overflow-hidden bg-gradient-to-br from-white to-orange-500/5 backdrop-blur-md border border-orange-500/20 p-6 rounded-2xl shadow-large hover:shadow-orange-500/20 transition-all duration-300 group cursor-pointer hover:scale-[1.02]"
-          >
-            {/* Efeito de brilho no fundo */}
+          <div onClick={handleUpgrade} className="relative overflow-hidden bg-gradient-to-br from-white to-orange-500/5 backdrop-blur-md border border-orange-500/20 p-6 rounded-2xl shadow-large hover:shadow-orange-500/20 transition-all duration-300 group cursor-pointer hover:scale-[1.02]">
             <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl -mr-16 -mt-16 transition-opacity group-hover:opacity-75" />
-
             <div className="flex justify-between items-start relative z-10">
               <div className="p-3 bg-gradient-hero rounded-xl text-white shadow-lg shadow-orange-500/20 group-hover:rotate-12 transition-transform duration-300">
                 <Rocket className="w-6 h-6" />
               </div>
-              <span className="text-xs font-medium bg-gradient-hero text-white px-2 py-1 rounded-full backdrop-blur-md">
-                Premium
-              </span>
+              <span className="text-xs font-medium bg-gradient-hero text-white px-2 py-1 rounded-full backdrop-blur-md">Premium</span>
             </div>
-
             <div className="relative z-10">
-              <h3 className="text-xl font-bold mt-4 text-foreground group-hover:text-gradient-hero transition-colors">
-                Turbinar Perfil
-              </h3>
-              <p className="text-sm text-muted-foreground mt-1 leading-tight">
-                Apareça no topo das buscas e receba <span className="text-foreground font-bold">3x mais clientes</span>.
-              </p>
-              
-              <div className="mt-3 flex items-center text-xs font-bold text-gradient-hero group-hover:text-gradient-hero transition-colors">
-                Saiba como funciona <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform"/>
-              </div>
+              <h3 className="text-xl font-bold mt-4 text-foreground group-hover:text-gradient-hero transition-colors">Turbinar Perfil</h3>
+              <p className="text-sm text-muted-foreground mt-1 leading-tight">Apareça no topo das buscas e receba <span className="text-foreground font-bold">3x mais clientes</span>.</p>
+              <div className="mt-3 flex items-center text-xs font-bold text-gradient-hero">Saiba como funciona <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform"/></div>
             </div>
           </div>
         </div>
 
-
-        {/* --- ÁREA PRINCIPAL --- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in order-1 lg:order-2 mb-10 lg:mb-0" style={{ animationDelay: "200ms" }}>
-          
-          {/* Coluna Esquerda: Histórico */}
           <div className="lg:col-span-2 space-y-6 order-2 lg:order-1">
             <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
               <MessageCircle className="w-5 ml-5 h-5 text-primary" /> Histórico de Contatos
             </h2>
-
             {stats.logs && stats.logs.length > 0 ? (
-                
                 <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                    
                     {stats.logs.map((log: any) => (
                         <div key={log.id} className="bg-card/40 backdrop-blur-sm border border-white/5 p-4 rounded-xl flex items-center gap-4 hover:bg-card/60 transition-colors">
-                            {/* Avatar do Cliente */}
                             <div className="w-10 h-10 rounded-full bg-muted border border-white/10 overflow-hidden flex-shrink-0">
                                 {log.client.avatarUrl ? (
                                     <img src={log.client.avatarUrl} alt={log.client.name} className="w-full h-full object-cover" />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-primary/20 text-primary text-xs font-bold">
-                                        {log.client.name.charAt(0)}
-                                    </div>
+                                    <div className="w-full h-full flex items-center justify-center bg-primary/20 text-primary text-xs font-bold">{log.client.name.charAt(0)}</div>
                                 )}
                             </div>
-                            
-                            {/* Dados do Cliente */}
                             <div className="flex-1">
                                 <h4 className="text-sm font-bold text-foreground">{formatText(log.client.name)}</h4>
                                 <p className="text-xs text-muted-foreground">Clicou no botão de contato</p>
                             </div>
-
-                            {/* Data do Clique */}
                             <div className="text-right">
                                 <span className="text-xs text-muted-foreground/70 flex items-center gap-1">
-                                    <Calendar className="w-3 h-3" />
-                                    {formatDate(log.createdAt)}
+                                    <Calendar className="w-3 h-3" /> {formatDate(log.createdAt)}
                                 </span>
                             </div>
                         </div>
@@ -351,23 +337,17 @@ navigate(`/checkout/${providerId}?type=FEATURED&amount=19.90`);
                         <MessageCircle className="w-8 h-8 text-muted-foreground/50" />
                     </div>
                     <h3 className="text-lg font-medium text-foreground">Acompanhe seus contatos</h3>
-                    <p className="text-muted-foreground text-sm max-w-xs mx-auto mt-2">
-                        Aqui você verá detalhes de quem clicou no seu WhatsApp. Mantenha seu perfil atualizado e o seu número correto para receber mais clientes.
-                    </p>
+                    <p className="text-muted-foreground text-sm max-w-xs mx-auto mt-2">Aqui você verá detalhes de quem clicou no seu WhatsApp. Mantenha seu perfil atualizado para receber mais clientes.</p>
                 </div>
             )}
-
           </div>
 
-          {/* Coluna Direita: Perfil Rápido */}
           <div className="space-y-6 order-1 lg:order-2">
             <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
               <User className="w-5 h-5 text-primary" /> Meu Cartão
             </h2>
-
             <div className="bg-card border border-border rounded-2xl p-6 shadow-large relative overflow-hidden group">
               <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-primary/20 to-purple-500/20" />
-              
               <div className="relative mt-8 flex flex-col items-center text-center">
                 <div className="w-24 h-24 rounded-full border-4 border-card bg-muted flex items-center justify-center overflow-hidden shadow-md mb-4">
                     {user.avatarUrl ? (
@@ -377,13 +357,21 @@ navigate(`/checkout/${providerId}?type=FEATURED&amount=19.90`);
                     )}
                 </div>
 
-                <h3 className="font-bold text-lg">{formatText(user.name)}</h3>
+                {/* NOME COM SELOS NO CARTÃO TAMBÉM */}
+                <div className="flex items-center justify-center gap-1.5 mb-1">
+                  <h3 className="font-bold text-lg">{formatText(user.name)}</h3>
+                  {user.provider?.isFeatured && (
+                    <div className="flex items-center gap-0.5">
+                      <Shield className="w-4 h-4 text-yellow-500 fill-yellow-500 drop-shadow-[0_0_8px_rgba(234,179,8,0.4)]" />
+                      <Rocket className="w-4 h-4 text-orange-500 fill-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.4)]" />
+                    </div>
+                  )}
+                </div>
+
                 <p className="text-sm text-primary font-medium mb-4">{user.provider?.category || "Categoria não definida"}</p>
-                
                 <p className="text-sm text-muted-foreground mb-6 line-clamp-3">
                   {user.provider?.description || "Adicione uma descrição para atrair mais clientes."}
                 </p>
-
                 <div className="w-full flex justify-center">
                     <Button 
                       className="w-full rounded-xl" 

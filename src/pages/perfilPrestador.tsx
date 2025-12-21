@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { 
   MapPin, Star, ArrowLeft, ShieldCheck, 
-  Clock, User, MessageCircle 
+  Clock, User, MessageCircle, Shield, Rocket 
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Bar from "@/components/layout/headerCliente"
@@ -39,22 +39,17 @@ export function PrestadorDetalhes() {
 
     async function fetchProvider() {
       try {
-        // CORREÇÃO 1: Adicionei limit=100 para tentar achar o prestador mesmo se ele não for o primeiro
         const res = await fetch(`${API_URL}/providers?limit=100`) 
         const responseData = await res.json()
 
-        // CORREÇÃO 2: Lógica robusta para extrair a lista (Array vs Objeto)
         let list: any[] = []
         
         if (Array.isArray(responseData)) {
-            // Formato antigo (Array puro)
             list = responseData
         } else if (responseData && Array.isArray(responseData.data)) {
-            // Formato novo (Com paginação)
             list = responseData.data
         }
 
-        // Agora sim podemos usar o .find com segurança
         const found = list.find((p: any) => p.id === id)
         setProvider(found)
 
@@ -162,10 +157,26 @@ export function PrestadorDetalhes() {
                 )}
             </div>
 
-            <div className="relative z-10 flex-1 space-y-4">
+            <div className="relative z-10 flex-1 space-y-4 w-full">
               <div>
                 <h1 className="text-3xl font-bold text-foreground mb-1">{formatText(providerName)}</h1>
-                <p className="text-primary font-bold text-lg">{provider.category}</p>
+                
+                {/* LÓGICA DE SELOS NO PERFIL */}
+                <div className="flex items-center justify-center md:justify-start gap-2">
+                  <p className="text-primary font-bold text-lg">{provider.category}</p>
+                  
+                  {provider.isFeatured && (
+                    <div className="flex items-center gap-1.5 ml-1">
+                      <div title="Esse profissional é destaque" className="flex items-center gap-1 rounded-full bg-gradient-to-b from-yellow-300 to-yellow-500 px-2 py-0.5 text-[10px] font-bold uppercase text-yellow-950 shadow-sm border-t border-white/50">
+                        <Shield className="h-3 w-3 fill-yellow-900 text-yellow-900" />
+                        <span>Destaque</span>
+                      </div>
+                      <div title="Esse profissional é destaque" className="bg-gradient-hero rounded-full text-white shadow-sm p-1 flex items-center justify-center border-t border-white/20">
+                        <Rocket className="h-3 w-3" />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-wrap justify-center md:justify-start gap-3">
@@ -197,29 +208,6 @@ export function PrestadorDetalhes() {
               </div>
             </div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-            <div className="bg-card/50 backdrop-blur-sm border border-white/10 p-4 rounded-2xl flex items-center gap-4">
-              <div className="bg-green-500/10 p-3 rounded-full">
-                <ShieldCheck className="w-6 h-6 text-green-500" />
-              </div>
-              <div>
-                <h3 className="font-bold text-foreground">Identidade Verificada</h3>
-                <p className="text-xs text-muted-foreground">Profissional checado pela plataforma</p>
-              </div>
-            </div>
-
-            <div className="bg-card/50 backdrop-blur-sm border border-white/10 p-4 rounded-2xl flex items-center gap-4">
-              <div className="bg-blue-500/10 p-3 rounded-full">
-                <Clock className="w-6 h-6 text-blue-500" />
-              </div>
-              <div>
-                <h3 className="font-bold text-foreground">Resposta Rápida</h3>
-                <p className="text-xs text-muted-foreground">Costuma responder em menos de 1h</p>
-              </div>
-            </div>
-          </div>
-
         </div>
         <ReviewsSection providerId={id || ""} />
       </div>

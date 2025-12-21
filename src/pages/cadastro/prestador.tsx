@@ -32,9 +32,21 @@ export function Prestador() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [category, setCategory] = useState("")
+  const [phone, setPhone] = useState("") // Estado para o telefone
   const [acceptTerms, setAcceptTerms] = useState(false)
 
   const navigate = useNavigate()
+
+  // Função de máscara para o telefone
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+    value = value.replace(/\D/g, "");
+    value = value.replace(/(\d{2})(\d)/, "($1) $2");
+    value = value.replace(/(\d{5})(\d)/, "$1-$2");
+
+    if (value.length > 15) value = value.substring(0, 15);
+    setPhone(value);
+  };
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -50,7 +62,6 @@ export function Prestador() {
     const email = formData.get("email") as string
 
     // 2. Verifica Senha Forte
-    // Regra: 8 caracteres, 1 maiúscula, 1 minúscula, 1 número, 1 símbolo
     const senhaForteRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/
 
     if (!senhaForteRegex.test(password)) {
@@ -70,7 +81,7 @@ export function Prestador() {
       name: formData.get("name") as string,
       email: email,
       password: password,
-      phone: formData.get("phone") as string,
+      phone: phone.replace(/\D/g, ""), // Limpa a máscara antes de enviar
       description: formData.get("description") as string,
       category: finalCategory,
       city: formData.get("city") as string, 
@@ -93,7 +104,6 @@ export function Prestador() {
         throw new Error(err.message || "Erro ao criar conta")
       }
 
-      // Redireciona para a verificação com o email na URL
       navigate(`/verificar-conta?email=${email}`)
 
     } catch (err: any) {
@@ -114,11 +124,11 @@ export function Prestador() {
         onSubmit={handleSubmit}
         className="relative z-10 w-full max-w-md bg-card/90 backdrop-blur-sm border border-border rounded-2xl shadow-large p-8 space-y-6 animate-fade-in"
       >
-           <div className="w-1">
-            <a onClick={() => navigate(-1)} className="text-zinc-800 hover:bg-white/20 cursor-pointer animate-fade-in">
-              <ArrowLeft /> Voltar
-            </a>
-          </div>
+            <div className="w-1">
+             <a onClick={() => navigate(-1)} className="text-zinc-800 hover:bg-white/20 cursor-pointer animate-fade-in">
+               <ArrowLeft /> Voltar
+             </a>
+           </div>
         <div className="text-center">
           <div className="max-w-4xl flex mb-3">
         </div>
@@ -136,7 +146,14 @@ export function Prestador() {
 
           <Input name="email" type="email" placeholder="Email" required className="rounded-xl" />
           
-          <Input name="phone" placeholder="WhatsApp (ex: 98900000000)" className="rounded-xl" />
+          <Input 
+            name="phone" 
+            value={phone}
+            onChange={handlePhoneChange}
+            placeholder="WhatsApp (ex: (98) 99999-9999)" 
+            required
+            className="rounded-xl" 
+          />
 
           <select
             name="city"
@@ -230,7 +247,7 @@ export function Prestador() {
         </div>
 
         {error && (
-          <p className="text-sm text-destructive text-center">
+          <p className="text-sm text-destructive text-center font-medium bg-red-500/10 p-2 rounded-lg border border-red-500/20">
             {error}
           </p>
         )}

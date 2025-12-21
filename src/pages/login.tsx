@@ -11,45 +11,27 @@ export function LoginPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // --- LÓGICA DE REDIRECIONAMENTO AUTOMÁTICO (GUARD) ---
+  // --- LÓGICA DE REDIRECIONAMENTO AUTOMÁTICO (CORRIGIDA: UNIFICADA) ---
   useEffect(() => {
-    // 1. Tenta pegar os dados salvos
     const token = localStorage.getItem("upaon_token")
     const userStorage = localStorage.getItem("upaon_user")
 
-    // 2. Se tiver token e usuário, não deixa ficar na tela de login
     if (token && userStorage) {
       try {
         const user = JSON.parse(userStorage)
         
-        if (user.role === "PROVIDER") {
+        if (user.role === "ADMIN") {
+          navigate("/dashboard/superadmin", { replace: true })
+        } else if (user.role === "PROVIDER") {
           navigate("/dashboard/prestador", { replace: true })
         } else {
-          // Client ou qualquer outro cai aqui
           navigate("/dashboard/cliente", { replace: true }) 
         }
       } catch (e) {
-        // Se o JSON estiver quebrado, limpa tudo pra ele logar de novo
         localStorage.clear()
       }
     }
   }, [navigate])
-  
-      useEffect(() => {
-        const storedUser = localStorage.getItem("upaon_user")
-        const storedToken = localStorage.getItem("upaon_token")
-    
-        if (storedUser && storedToken) {
-          const user = JSON.parse(storedUser)
-          
-          // Redireciona imediatamente baseado no tipo de usuário
-          if (user.role === "PROVIDER") {
-            navigate("/dashboard/prestador", { replace: true })
-          } else {
-            navigate("/dashboard/cliente", { replace: true })
-          }
-        }
-      }, [navigate])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -74,7 +56,7 @@ export function LoginPage() {
 
       const data: any = await res.json()
 
-if (!res.ok) {
+      if (!res.ok) {
         throw new Error(data.message || "Erro ao fazer login");
       }
 
@@ -90,14 +72,12 @@ if (!res.ok) {
       if (data.user.role === "ADMIN") {
         navigate("/dashboard/superadmin")
         return
-    }
+      }
 
       if (redirectUrl) {
-        // Se tiver bilhete:
-        localStorage.removeItem("redirect_after_login") // Limpa
+        localStorage.removeItem("redirect_after_login") 
         navigate(redirectUrl)
       } else {
-        // Se não tiver bilhete, fluxo normal:
         if (data.user.role === "PROVIDER") {
           navigate("/dashboard/prestador")
         } else {
@@ -114,13 +94,11 @@ if (!res.ok) {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center bg-gradient-sunset px-4 overflow-hidden">
-      {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse-soft" />
         <div className="absolute bottom-20 left-10 w-96 h-96 bg-sun/10 rounded-full blur-3xl animate-pulse-soft" />
       </div>
 
-      {/* Login Card */}
       <form
         onSubmit={handleSubmit}
         className="relative z-10 w-full max-w-md bg-card/90 backdrop-blur-sm border border-border rounded-2xl shadow-large p-8 space-y-6 animate-fade-in"
@@ -131,8 +109,6 @@ if (!res.ok) {
             </a>
           </div>
         <div className="text-center">
-          <div className="max-w-4xl flex mb-3">
-          </div>
           <h1 className="font-display font-bold text-3xl text-foreground">
             Entrar na{" "}
             <span className="text-gradient-hero">UpaonServices</span>
