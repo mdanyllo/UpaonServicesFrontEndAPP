@@ -43,19 +43,20 @@ const onSubmit = async ({ formData }: any) => {
       const { status, status_detail, ticket_url } = response.data;
 
       if (status === 'approved') {
-        toast.success("Pagamento aprovado com sucesso!");
+        toast.success("Pagamento aprovado com sucesso! Redirecionando...");
         
-        // Timeout para garantir que o toast apareça e evitar que a tela trave no feedback do MP
+        // Substituímos o navigate/href comum por um replace de janela
+        // Isso força o navegador a mudar de página mesmo com o Brick ativo
         setTimeout(() => {
-          window.location.href = "/dashboard/prestador";
-        }, 1500);
+          window.location.replace("/dashboard/prestador");
+        }, 1000);
 
       } else if (status === 'pending' || status === 'in_process') {
-        toast.success("Pagamento pendente ou em processamento.");
+        toast.success("Pagamento pendente! Redirecionando para o comprovante...");
         if (ticket_url) {
           setTimeout(() => {
-            window.location.href = ticket_url;
-          }, 1500);
+            window.location.replace(ticket_url);
+          }, 1000);
         }
       } else if (status === 'rejected') {
         const erros: any = {
