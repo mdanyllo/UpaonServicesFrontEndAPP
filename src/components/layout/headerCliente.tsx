@@ -46,13 +46,15 @@ const Bar = () => {
             <div className="w-10 h-10 flex items-center justify-center">
               <img className="rounded-lg" src="/logo1.png" alt="Upaon Services" />
             </div>
-            <span className="font-display font-bold text-xl text-foreground">
+            <span className="font-display font-bold md:text-xl text-sm text-foreground">
               UpaonServices
             </span>
           </Link>
 
           {/* DIREITA: Perfil + Logout */}
           <div className="flex items-center gap-3">
+
+            <a className="font-display text-xs  md:text-sm" target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLScm2aVr4RevWGH2UGPDiw0eLKnLgTlX0G034aJVI9zJfkD8dA/viewform?usp=dialog">Avalie-nos</a>
             
             <div className="flex items-center gap-3 pl-4 border-l border-border/50">
               {/* Nome do Usuário */}
