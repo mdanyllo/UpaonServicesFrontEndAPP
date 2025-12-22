@@ -102,12 +102,12 @@ const FeaturedProfessionalsSection = () => {
   }
 
   return (
-    <section id="profissionais" className="py-12 md:py-20 overflow-hidden bg-background">
+    <section id="profissionais" className="py-12 md:py-10 overflow-hidden bg-muted/50">
       <div className="container mx-auto px-4">
         
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8 md:mb-12">
-          <div>
-            <span className="inline-block px-3 py-1 md:px-4 md:py-1.5 bg-yellow-500/20 text-yellow-600 rounded-full text-xs md:text-sm font-bold mb-3 md:mb-4 border border-yellow-500/20">
+          <div className="flex flex-col items-center justify-center w-full">
+            <span className="inline-block px-3 py-1 md:px-4 md:py-1.5 bg-yellow-500/20 text-yellow-700 rounded-full text-xs md:text-sm font-bold mb-3 md:mb-4 border border-yellow-500/20">
               Em Destaque
             </span>
             <h2 className="font-display font-bold text-2xl md:text-4xl text-foreground mb-2">

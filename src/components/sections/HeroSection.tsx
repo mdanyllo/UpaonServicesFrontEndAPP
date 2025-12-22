@@ -137,7 +137,7 @@ const HeroSection = () => {
   // -------------------------------------
 
   return (
-    <section className="relative md:min-h-[85vh] flex items-center pt-20 overflow-hidden bg-gradient-sunset">
+    <section className="relative py-10 md:py-16 md:mt-10 md:min-h-[85vh] flex items-center pt-20 overflow-hidden bg-gradient-sunset">
       {/* BG */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 right-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse-soft" />

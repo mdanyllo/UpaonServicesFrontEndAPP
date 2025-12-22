@@ -75,7 +75,7 @@ const onSubmit = async ({ formData }: any) => {
         <h1 className="text-3xl font-bold mb-4 text-black">
           {type === 'ACTIVATION' ? 'Ativar Sua Conta' : 'Destacar Seu Perfil'}
           <div className='flex justify-center items-center mt-1'>
-            <p className='md:text-sm text-xs font-normal'>Ao realizar o pagamento volte para o seu perfil na plataforma</p>
+            <p className='md:text-sm text-xs font-normal'>Ao realizar o pagamento, volte para o seu perfil na plataforma</p>
           </div>
         </h1>
         <div className="bg-white p-6 rounded-2xl shadow-lg border inline-block min-w-[280px]">
