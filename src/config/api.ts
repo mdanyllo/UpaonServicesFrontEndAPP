@@ -1,2 +1,2 @@
 
-export const API_URL = "https://upaonservicesbackprototipo.onrender.com"
+export const API_URL = "https://apiupaonservices.ddns.net"
