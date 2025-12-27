@@ -3,6 +3,7 @@ import { Star, User, Send, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner" // Usando o Sonner para avisos bonitos
+import { API_URL } from "@/config/api"
 
 type Review = {
   id: string
@@ -36,7 +37,7 @@ export function ReviewsSection({ providerId }: ReviewsSectionProps) {
 
   async function fetchReviews() {
     try {
-      const res = await fetch(`https://upaonservicesbackprototipo.onrender.com/reviews/${providerId}`)
+      const res = await fetch(`${API_URL}/reviews/${providerId}`)
       const data = await res.json()
       setReviews(Array.isArray(data) ? data : [])
     } catch (error) {
@@ -64,7 +65,7 @@ export function ReviewsSection({ providerId }: ReviewsSectionProps) {
     setSubmitting(true)
 
     try {
-      const res = await fetch("https://upaonservicesbackprototipo.onrender.com/reviews", {
+      const res = await fetch(`${API_URL}/reviews`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
