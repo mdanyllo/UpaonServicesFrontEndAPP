@@ -57,7 +57,6 @@ const FeaturedProfessionalsSection = () => {
         meta = responseData.meta
       }
 
-      // --- LÓGICA DE FILTRO ADICIONADA: APENAS ISFEATURED TRUE ---
       const onlyFeatured = fetchedPros.filter(pro => pro.isFeatured === true)
 
       if (isInitial) {

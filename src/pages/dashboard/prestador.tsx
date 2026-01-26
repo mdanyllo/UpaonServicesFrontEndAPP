@@ -157,15 +157,6 @@ export default function ProviderDashboard() {
 
   return (
     <section className="relative min-h-screen pt-14 md:pt-18 pb-12 bg-gradient-sunset overflow-hidden">
-      
-      {(user.isActivated === false || user.provider?.isActive === false) && (
-        <div className="flex flex-col justify-center items-center text-xs md:text-sm font-display mb-10 md:mb-6 gap-2">
-          <p ><strong><CircleAlert className="w-6 h-5 inline"/>Seu perfil está pronto! Só falta ativar.</strong></p>
-          <p className="text-center mb-2">Para proteger sua identidade e manter a plataforma segura, utilizamos uma <strong>Verificação Financeira Mensal</strong> de apenas R$ 1,99. <br /> Enquanto a conta não estiver ativa, seu perfil permanece invisível para os clientes.</p>
-          <Button className="text-xs md:text-sm" onClick={() => navigate(`/checkout/${user.provider?.id}?type=ACTIVATION&amount=1.99`)}>Ative sua conta agora mesmo</Button>
-        </div>
-      )}
-
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 right-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse-soft" />
         <div className="absolute bottom-20 left-10 w-96 h-96 bg-ocean/10 rounded-full blur-3xl animate-pulse-soft" />
@@ -179,7 +170,7 @@ export default function ProviderDashboard() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
               </span>
-                {user.isActivated === true || user.provider?.isActive === true ? "Perfil Visível Para Clientes" : "Perfil Invisível Para Clientes"}
+                {user.isActivated === true || user.provider?.isActive === true ? "Perfil Visível Para Clientes" : "Perfil Visível Para Clientes"}
             </div>
             
             {/* SAUDAÇÃO COM SELOS DE DESTAQUE LÁ EM CIMA */}
