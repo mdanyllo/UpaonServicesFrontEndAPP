@@ -1,2 +1,2 @@
 
-export const API_URL = "https://apiupaonservices.ddns.net"
+export const API_URL = "http://localhost:3333"

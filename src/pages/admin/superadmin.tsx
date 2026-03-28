@@ -3,11 +3,10 @@ import { useNavigate } from "react-router-dom"
 import { 
   Users, Briefcase, Search, Trash2, 
   ShieldCheck, Calendar, Trophy, ChevronLeft, ChevronRight, Loader2,
-  MessageCircle,
   DollarSign,
   LogOut,
-  CheckCircle2, // Ícone para Ativo
-  XCircle       // Ícone para Inativo
+  CheckCircle2, 
+  XCircle 
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -116,7 +115,6 @@ async function handleDelete(userId: string, currentStatus: boolean) {
             
             setUsers(prev => prev.map(u => {
                 if (u.id === userId && u.provider) {
-                    // Inverte o status de isActive baseado no que era antes
                     return { ...u, provider: { ...u.provider, isActive: !currentStatus, isFeatured: currentStatus ? false : u.provider.isFeatured } }
                 }
                 return u
@@ -206,17 +204,17 @@ async function handleDelete(userId: string, currentStatus: boolean) {
                 <div className="p-3 bg-purple-500/10 rounded-xl text-purple-500"><Briefcase /></div>
                 <div>
                     <h3 className="text-3xl font-bold">{stats?.providers || 0}</h3>
-                    <p className="text-sm text-zinc-400">Prestadores Ativos</p>
+                    <p className="text-sm text-zinc-400">Prestadores Totais</p>
                 </div>
             </div>
         </div>
 
         <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl">
             <div className="flex items-center gap-4">
-                <div className="p-3 bg-green-500/10 rounded-xl text-green-500"><MessageCircle /></div>
+                <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-500"><Users className="w-5 h-5" /></div>
                 <div>
-                    <h3 className="text-3xl font-bold">{stats?.totalContacts || 0}</h3>
-                    <p className="text-sm text-zinc-400">Contatos Realizados</p>
+                    <h3 className="text-3xl font-bold">{(stats?.users || 0) - (stats?.providers || 0)}</h3>
+                    <p className="text-sm text-zinc-400">Clientes Totais</p>
                 </div>
             </div>
         </div>
@@ -300,11 +298,6 @@ async function handleDelete(userId: string, currentStatus: boolean) {
                                                 <XCircle className="w-3.5 h-3.5" /> Inativo
                                             </span>
                                         )}
-                                        {u.provider.isActive && u.provider.activatedUntil && (
-                                            <span className="text-[10px] text-zinc-600">
-                                                Expira: {formatDate(u.provider.activatedUntil)}
-                                            </span>
-                                        )}
                                     </div>
                                 ) : (
                                     <span className="px-2 py-1 bg-zinc-800 rounded text-[10px] text-zinc-500">CLIENTE</span>
@@ -328,7 +321,6 @@ async function handleDelete(userId: string, currentStatus: boolean) {
                                 {u.role !== 'ADMIN' && (
                                     <Button 
                                         variant="ghost" size="icon" 
-                                        // ALTERAÇÃO DINÂMICA DO BOTÃO DE AÇÃO
                                         className={u.provider?.isActive 
                                           ? "text-zinc-500 hover:text-red-500 hover:bg-red-500/10" 
                                           : "text-zinc-500 hover:text-green-500 hover:bg-green-500/10"

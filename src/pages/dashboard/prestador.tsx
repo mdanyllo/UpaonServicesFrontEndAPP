@@ -173,7 +173,6 @@ export default function ProviderDashboard() {
                 {user.isActivated === true || user.provider?.isActive === true ? "Perfil Visível Para Clientes" : "Perfil Visível Para Clientes"}
             </div>
             
-            {/* SAUDAÇÃO COM SELOS DE DESTAQUE LÁ EM CIMA */}
             <div className="flex items-center gap-4 flex-wrap">
               <h1 className="font-display font-bold text-3xl md:text-4xl text-foreground">
                 Olá, <span className="text-gradient-hero">{formatText(user.name.split(" ")[0])}</span>
@@ -205,7 +204,25 @@ export default function ProviderDashboard() {
           </div>
         </div>
 
+        {/* ESTATÍSTICAS COM TURBINAR EM PRIMEIRO NO MOBILE */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 animate-fade-in order-2 lg:order-1" style={{ animationDelay: "100ms" }}>
+          
+          {/* CARD TURBINAR PERFIL - Agora com order-first no mobile e order-none no desktop */}
+          <div onClick={handleUpgrade} className="order-first md:order-none relative overflow-hidden bg-gradient-to-br from-white to-orange-500/5 backdrop-blur-md border border-orange-500/20 p-6 rounded-2xl shadow-large hover:shadow-orange-500/20 transition-all duration-300 group cursor-pointer hover:scale-[1.02]">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl -mr-16 -mt-16 transition-opacity group-hover:opacity-75" />
+            <div className="flex justify-between items-start relative z-10">
+              <div className="p-3 bg-gradient-hero rounded-xl text-white shadow-lg shadow-orange-500/20 group-hover:rotate-12 transition-transform duration-300">
+                <Rocket className="w-6 h-6" />
+              </div>
+              <span className="text-xs font-medium bg-gradient-hero text-white px-2 py-1 rounded-full backdrop-blur-md">Premium</span>
+            </div>
+            <div className="relative z-10">
+              <h3 className="text-xl font-bold mt-4 text-foreground group-hover:text-gradient-hero transition-colors">Turbinar Perfil</h3>
+              <p className="text-sm text-muted-foreground mt-1 leading-tight">Apareça no topo das buscas e receba <span className="text-foreground font-bold">3x mais clientes</span>.</p>
+              <div className="mt-3 flex items-center text-xs font-bold text-gradient-hero">Saiba como funciona <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform"/></div>
+            </div>
+          </div>
+
           <div className="bg-card/60 backdrop-blur-md border border-white/10 p-6 rounded-2xl shadow-large hover:bg-card/80 transition-colors group">
             <div className="flex justify-between items-start">
               <div className="p-3 bg-yellow-500/10 rounded-xl text-yellow-500 group-hover:scale-110 transition-transform">
@@ -232,21 +249,6 @@ export default function ProviderDashboard() {
             </div>
             <h3 className="text-3xl font-bold mt-4 text-foreground">{stats.contacts}</h3>
             <p className="text-sm text-muted-foreground">Cliques no WhatsApp</p>
-          </div>
-
-          <div onClick={handleUpgrade} className="relative overflow-hidden bg-gradient-to-br from-white to-orange-500/5 backdrop-blur-md border border-orange-500/20 p-6 rounded-2xl shadow-large hover:shadow-orange-500/20 transition-all duration-300 group cursor-pointer hover:scale-[1.02]">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl -mr-16 -mt-16 transition-opacity group-hover:opacity-75" />
-            <div className="flex justify-between items-start relative z-10">
-              <div className="p-3 bg-gradient-hero rounded-xl text-white shadow-lg shadow-orange-500/20 group-hover:rotate-12 transition-transform duration-300">
-                <Rocket className="w-6 h-6" />
-              </div>
-              <span className="text-xs font-medium bg-gradient-hero text-white px-2 py-1 rounded-full backdrop-blur-md">Premium</span>
-            </div>
-            <div className="relative z-10">
-              <h3 className="text-xl font-bold mt-4 text-foreground group-hover:text-gradient-hero transition-colors">Turbinar Perfil</h3>
-              <p className="text-sm text-muted-foreground mt-1 leading-tight">Apareça no topo das buscas e receba <span className="text-foreground font-bold">3x mais clientes</span>.</p>
-              <div className="mt-3 flex items-center text-xs font-bold text-gradient-hero">Saiba como funciona <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform"/></div>
-            </div>
           </div>
         </div>
 
@@ -304,7 +306,6 @@ export default function ProviderDashboard() {
                     )}
                 </div>
 
-                {/* NOME COM SELOS NO CARTÃO TAMBÉM */}
                 <div className="flex items-center justify-center gap-1.5 mb-1">
                   <h3 className="font-bold text-lg">{formatText(user.name)}</h3>
                   {user.provider?.isFeatured && (
@@ -317,7 +318,6 @@ export default function ProviderDashboard() {
 
                 <p className="text-sm text-primary font-medium mb-4">{user.provider?.category || "Categoria não definida"}</p>
                 <p className="text-sm text-muted-foreground mb-6 line-clamp-3">
-                  <p className="whitespace-pre-wrap"></p>
                   {user.provider?.description || "Adicione uma descrição para atrair mais clientes."}
                 </p>
                 <div className="w-full flex justify-center">
